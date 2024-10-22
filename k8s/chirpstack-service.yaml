@@ -1,0 +1,23 @@
+# Load balancer that exposes chirpstack app, chrirpstack gateway bridge, and MQTT
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: chirpstack
+  name: chirpstack
+spec:
+  ports:
+    - name: "chirpstack"
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: "http"
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    io.kompose.service: chirpstack
+  type: LoadBalancer

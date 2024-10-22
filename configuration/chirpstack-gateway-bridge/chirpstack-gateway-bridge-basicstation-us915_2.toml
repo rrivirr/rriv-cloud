@@ -12,34 +12,27 @@ state_topic_template="us915_2/gateway/{{ .GatewayID }}/state/{{ .StateType }}"
 command_topic_template="us915_2/gateway/{{ .GatewayID }}/command/#"
 
 [backend]
-type="basic_station"
+type="semtech_udp"
 
-  [backend.basic_station]
-  bind=":3001"
-  tls_cert=""
-  tls_key=""
-  ca_cert=""
+  # Semtech UDP packet-forwarder backend.
+  [backend.semtech_udp]
 
-  region="US915"
-  frequency_min=923000000
-  frequency_max=928000000
+  # ip:port to bind the UDP listener to
+  #
+  # Example: 0.0.0.0:1700 to listen on port 1700 for all network interfaces.
+  # This is the listener to which the packet-forwarder forwards its data
+  # so make sure the 'serv_port_up' and 'serv_port_down' from your
+  # packet-forwarder matches this port.
+  udp_bind = "0.0.0.0:1700"
 
+  # Skip the CRC status-check of received packets
+  #
+  # This is only has effect when the packet-forwarder is configured to forward
+  # LoRa frames with CRC errors.
+  skip_crc_check = false
 
-  [[backend.basic_station.concentrators]]
-
-    [backend.basic_station.concentrators.multi_sf]
-    frequencies=[
-      905500000,
-      905700000,
-      905900000,
-      906100000,
-      906300000,
-      906500000,
-      906700000,
-      906900000,
-    ]
-  
-    [backend.basic_station.concentrators.lora_std]
-    frequency=906200000
-    bandwidth=500000  
-    spreading_factor=8
+  # Fake RX timestamp.
+  #
+  # Fake the RX time when the gateway does not have GPS, in which case
+  # the time would otherwise be unset.
+  fake_rx_time=false

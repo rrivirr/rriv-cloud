@@ -1,0 +1,20 @@
+# https://developer.hashicorp.com/vault/tutorials/kubernetes/vault-secrets-operator
+# Install with:
+# helm upgrade vault-secrets-operator hashicorp/vault-secrets-operator -n vault-secrets-operator-system --create-namespace --values vault/vault-operator-values.yaml
+defaultVaultConnection:
+  enabled: true
+  address: "http://167.172.10.0:8200"
+  skipTLSVerify: false
+controller:
+  manager:
+    clientCache:
+      persistenceModel: direct-encrypted
+      storageEncryption:
+        enabled: true
+        mount: kubernetes
+        keyName: vso-client-cache
+        transitMount: transit
+        kubernetes:
+          role: devweb-app
+          serviceAccount: internal-app
+          #tokenAudiences: ["vault"]

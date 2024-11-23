@@ -1,0 +1,9 @@
+server:
+  dev:
+    enabled: true
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"
+injector:
+  image:
+    repository: hashicorp/vault-k8s

@@ -45,21 +45,23 @@ spec:
                   password: 'k0z3ddzlwpym9cy3',
                   port: 37881,
                   ssl: true,
-                  debug: true
                 });
+
+                const sql = "INSERT INTO events (time, eui, data ) VALUES ( '" +
+                  time + 
+                  "', '" + 
+                  devEui + 
+                  "', '" + 
+                  dataDecoded + 
+                  "')";
+                console.log('sql:', sql);
 
                 return client.connect()
                   .then(() => {
-                    return client.query(`
-                      INSERT INTO events 
-                        (time, eui, data) 
-                      VALUES 
-                        ( $1, $2, $3 )
-                      `,
-                      [time, devEui, dataDecoded]
-                    );
+                    return client.query(sql);
                   })
-                  .then(() => {
+                  .then(res => {
+                    console.log('res:', res);
                     return client.end();
                   })
                   .catch(e => {
@@ -76,7 +78,7 @@ spec:
 
               // Define a route for the root URL
               app.get('/', (req, res) => {
-                  res.send('Hello, World!');
+                  res.send('Hi from RRIV!');
               });
 
               app.post('/rriv-web-hook', (req, res) => {

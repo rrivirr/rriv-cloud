@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: vault
+  name: external-vault
   namespace: default  # Use the same namespace where your Vault Pod is running
 spec:
   selector:

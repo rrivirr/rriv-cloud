@@ -1,31 +1,27 @@
 # RRIV Cloud
-*Kubernetes infrastructure for RRIV's IoT cloud*
+#### *Kubernetes infrastructure for RRIV's IoT cloud*
+
 RRIV cloud is set up to use Digital Ocean for its Chripstack servers. Its db is a Postgres managed db, also in DO.
 
 ## k8s
 The k8s files were generated from [this](https://github.com/chirpstack/chirpstack-docker) chirpstack-docker project.
 
-The ingress controller uses nginx and was installed with this helm repo: https://github.com/kubernetes/ingress-nginx
- 
-```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/cloud/deploy.yaml
-```
-This creates an `ingress-nginx` namespace where the controller resources live.
-
 ## Vault
-Vault was created with a helm chart. 
+Hashicorp Vault is installed in a separate k8s cluster. To switch over:
+```
+kubectl config get-contexts
+kubectl config use-context <vault-context-name>
+```
+This should update the current cluster to be the one containing Vault.
+
+Vault was installed with a helm chart: 
 ```
 helm install vault hashicorp/vault \
   --namespace vault \
-  -f vault/override-values.yaml
+  -f vault/dev-install-values.yaml
 ```
-
-## Postgres
-To connect directly, kubectl into the postgres pod, and connect with:
-```
-psql 
-
-
+The Vault agent injects secrets into pods that are specified via annotations. For an example of this, look at the Chirpstack deployment file. Secrets are injected into `/vault/secrets/credentials`, then used by the container. This centralizes secrets across cloud resources and keeps them out of plaintext k8s.
 
 ## Metrics Server
 Installed with: `kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml`
+

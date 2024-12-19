@@ -1,0 +1,11 @@
+# Do we need this file?
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nats-js-nats-0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

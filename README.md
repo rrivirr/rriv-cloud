@@ -22,6 +22,15 @@ helm install vault hashicorp/vault \
 ```
 The Vault agent injects secrets into pods that are specified via annotations. For an example of this, look at the Chirpstack deployment file. Secrets are injected into `/vault/secrets/credentials`, then used by the container. This centralizes secrets across cloud resources and keeps them out of plaintext k8s.
 
+The secrets needed by Chirpstack are:
+```
+POSTGRES_CONN_STRING # Chirpstack's database connection string
+PG_INTEGRATION_CONN_STRING # The TimescaleDB database that Chirpstack pipes data into
+```
+
 ## Metrics Server
 Installed with: `kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml`
 
+
+## Queue
+See README in queue directory.

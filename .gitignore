@@ -7,3 +7,6 @@
 /lorawan-devices
 
 **/ENV
+
+# js 
+node_modules

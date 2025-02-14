@@ -34,3 +34,5 @@ Installed with: `kubectl apply -f https://github.com/kubernetes-sigs/metrics-ser
 
 ## Queue
 See README in queue directory.
+
+## Keycloak

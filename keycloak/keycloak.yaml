@@ -4,17 +4,22 @@ metadata:
   name: keycloak
   labels:
     app: keycloak
+  annotations:
+    # service.beta.kubernetes.io/do-loadbalancer-certificate-id: "rriv-cert-secret"
+    # service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+    # service.beta.kubernetes.io/do-loadbalancer-hostname: "auth.rriv.org"
+    # service.beta.kubernetes.io/do-loadbalancer-name: "auth.rriv.org"
 spec:
   ports:
     - name: http
-      port: 8080
+      port: 80
       targetPort: 8080
     - name: https
-      port: 8443
+      port: 443
       targetPort: 8443
   selector:
     app: keycloak
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment

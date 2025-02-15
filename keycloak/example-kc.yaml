@@ -6,16 +6,17 @@ spec:
   instances: 1
   db:
     vendor: postgres
-    host: postgres-db
     usernameSecret:
       name: keycloak-db-secret
       key: username
     passwordSecret:
       name: keycloak-db-secret
       key: password
-  http:
-    tlsSecret: example-tls-secret
+    database: keycloak
+    host: rriv-dev-do-user-18089096-0.j.db.ondigitalocean.com
+  # http:
+  #   tlsSecret: example-tls-secret
   hostname:
-    hostname: test.keycloak.org
+    hostname: auth.rriv.org
   proxy:
     headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers

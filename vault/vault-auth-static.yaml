@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  # SA bound to the VSO namespace for transit engine auth
+  namespace: vault-secrets-operator-system
+  name: rriv-operator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: default
+  name: rriv-keycloak
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: static-auth
+  namespace: default
+spec:
+  method: kubernetes
+  mount: rriv-auth-mount
+  kubernetes:
+    role: keycloak-role
+    serviceAccount: rriv-keycloak
+    audiences:
+      - vault

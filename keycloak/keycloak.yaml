@@ -1,61 +1,22 @@
-apiVersion: v1
-kind: Service
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
 metadata:
-  name: keycloak
-  labels:
-    app: keycloak
-  annotations:
-    # service.beta.kubernetes.io/do-loadbalancer-certificate-id: "rriv-cert-secret"
-    # service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
-    # service.beta.kubernetes.io/do-loadbalancer-hostname: "auth.rriv.org"
-    # service.beta.kubernetes.io/do-loadbalancer-name: "auth.rriv.org"
+  name: example-kc
 spec:
-  ports:
-    - name: http
-      port: 80
-      targetPort: 8080
-    - name: https
-      port: 443
-      targetPort: 8443
-  selector:
-    app: keycloak
-  type: ClusterIP
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: keycloak
-  labels:
-    app: keycloak
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: keycloak
-  template:
-    metadata:
-      labels:
-        app: keycloak
-    spec:
-      containers:
-        - name: keycloak
-          image: quay.io/keycloak/keycloak:26.0.7
-          args: ["start-dev"]
-          env:
-            - name: KC_BOOTSTRAP_ADMIN_USERNAME
-              value: "admin"
-            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-              value: "admin"
-            - name: KC_PROXY
-              value: "edge"
-            - name: KC_HEALTH_ENABLED
-              value: "true"
-          ports:
-            - name: http
-              containerPort: 8080
-            - name: https
-              containerPort: 8443
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: 9000
+  instances: 1
+  db:
+    vendor: postgres
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+    database: keycloak
+    host: rriv-dev-do-user-18089096-0.j.db.ondigitalocean.com
+  # http:
+  #   tlsSecret: example-tls-secret
+  hostname:
+    hostname: auth.rriv.org
+  proxy:
+    headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers

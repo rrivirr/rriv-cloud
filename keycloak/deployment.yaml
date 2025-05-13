@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.34.0 (HEAD)
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'devweb-app'
+    vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/dev-keycloak-creds'
+    vault.hashicorp.com/agent-inject-template-credentials: |
+      {{- with secret "secret/data/dev-keycloak-creds" -}} 
+      export KC_BOOTSTRAP_ADMIN_USERNAME={{ .Data.data.keycloak_bootstrap_admin_username }}
+      export KC_BOOTSTRAP_ADMIN_PASSWORD={{ .Data.data.keycloak_bootstrap_admin_password }}
+      {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.0.7
+          args: ["start-dev"]
+          env:
+            - name: KC_PROXY_HEADERS
+              value: "xforwarded"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: https
+              containerPort: 8443
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 9000

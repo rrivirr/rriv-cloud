@@ -6,27 +6,12 @@ spec:
   acme:
     # The ACME server URL for Let's Encrypt
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: zaven@rriv.org
+    email: kat@rriv.org
     privateKeySecretRef:
-      name: letsencrypt-prod-key
+      name: letsencrypt-prod-account-key
     solvers:
       - dns01:
           digitalocean:
             tokenSecretRef:
               name: digitalocean-api-key  # The Secret containing the DigitalOcean API token
               key: api-token
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: rriv-cert
-  namespace: default
-spec:
-  secretName: rriv-cert-secret  # The name of the Secret that will store the cert
-  issuerRef:
-    name: letsencrypt-prod  # Name of the ClusterIssuer or Issuer
-    kind: ClusterIssuer
-  commonName: auth.rriv.org
-  dnsNames:
-    - auth.rriv.org
-

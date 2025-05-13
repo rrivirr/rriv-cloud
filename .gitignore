@@ -1,4 +1,4 @@
-# hidden files, exluding gitattributes
+# hidden files, excluding gitattributes
 .*
 !.gitattributes
 
@@ -7,3 +7,7 @@
 /lorawan-devices
 
 **/ENV
+
+**.key
+**.pem
+**/secrets.tfvars

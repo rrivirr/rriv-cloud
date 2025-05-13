@@ -35,3 +35,4 @@ ui:
 injector:
   image:
     repository: hashicorp/vault-k8s
+externalVaultIP: 167.172.10.0

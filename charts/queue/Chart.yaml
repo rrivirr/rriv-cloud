@@ -1,0 +1,11 @@
+apiVersion: v2
+name: queue
+description: Queue service for rriv application
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+dependencies:
+  - name: nats
+    repository: https://nats-io.github.io/k8s/helm/charts/
+    version: 1.2.7
+    condition: nats.enabled

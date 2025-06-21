@@ -1,13 +1,26 @@
+# misc
+**/*.DS_Store
+**/*.log
+
 # hidden files, excluding gitattributes
 .*
 !.gitattributes
 
 # data folder
-/data
-/lorawan-devices
+charts/**/data/
+charts/**/data/**
+**/lorawan-devices/**
 
 **/ENV
 
 **.key
 **.pem
-**/secrets.tfvars
+**.crt
+
+# Terraform files
+**/*secrets.auto.tfvars
+**/backend-*.hcl
+**/*.tfstate
+**/*.tfstate.*
+**/charts/*.tgz
+**/backend.hcl

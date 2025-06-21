@@ -1,0 +1,9 @@
+kubeContext: {{ .Environment.Values.vaultKubeContext }}
+
+releases:
+  - name: rriv-vault
+    namespace: vault
+    chart: ../charts/vault/
+    version: 0.1.0
+    values:
+      - charts/vault/values-{{ .Environment.Name }}.yaml

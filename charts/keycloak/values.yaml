@@ -1,0 +1,5 @@
+keycloak:
+  db:
+    host: rriv-dev-do-user-18089096-0.j.db.ondigitalocean.com
+webfingerDeployment:
+  image: kleipper/rriv-webfinger-app:latest # TODO: put this in a rriv docker account

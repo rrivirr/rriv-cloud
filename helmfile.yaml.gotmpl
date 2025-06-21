@@ -1,0 +1,32 @@
+environments:
+  dev:
+    values:
+      - environments/dev.yaml
+  staging:
+    values:
+      - environments/staging.yaml
+  prod:
+    values:
+      - environments/prod.yaml
+
+helmfiles:
+  - path: helmfiles/vault.yaml.gotmpl
+    values:
+      - /home/rootkat/Documents/code/rriv/rriv-cloud/environments/{{ .Environment.Name }}.yaml
+  - path: helmfiles/rriv.yaml.gotmpl
+    values:
+      - /home/rootkat/Documents/code/rriv/rriv-cloud/environments/{{ .Environment.Name }}.yaml
+
+repositories:
+  - name: rriv-vault
+    url: file://./charts/vault
+  - name: rriv-queue
+    url: file://./charts/queue
+  - name: rriv-chirpstack
+    url: file://./charts/chirpstack
+  - name: rriv-keycloak
+    url: file://./charts/keycloak
+  - name: rriv-lorawan-simulator
+    url: file://./charts/lorawan-simulator
+  - name: rriv-network
+    url: file://./charts/network

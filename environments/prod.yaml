@@ -1,0 +1,2 @@
+kubeContext: do-sfo2-rriv-prod
+vaultKubeContext: do-sfo2-vault-prod

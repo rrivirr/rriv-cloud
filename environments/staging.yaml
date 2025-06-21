@@ -1,0 +1,2 @@
+kubeContext: do-sfo2-rriv-staging
+vaultKubeContext: do-sfo2-vault-staging

@@ -23,4 +23,3 @@ charts/**/data/**
 **/*.tfstate
 **/*.tfstate.*
 **/charts/*.tgz
-**/backend.hcl

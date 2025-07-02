@@ -1,0 +1,58 @@
+kubeContext: {{ .Environment.Values.kubeContext }}
+
+releases:
+  - name: rriv-external-vault
+    namespace: default
+    chart: ../charts/external-vault/
+    version: 0.1.0
+    values:
+      - ../charts/external-vault/values-{{ .Environment.Name }}.yaml
+
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    version: 4.12.2
+    values:
+      - ../charts/network/values-{{ .Environment.Name }}.yaml # or a dedicated values file
+
+  - name: rriv-network
+    namespace: default
+    chart: ../charts/network/
+    version: 0.1.0
+    values:
+      - ../charts/network/values-{{ .Environment.Name }}.yaml
+
+  - name: rriv-keycloak
+    namespace: default
+    chart: ../charts/keycloak/
+    version: 0.1.0
+    values:
+      - ../charts/keycloak/values-{{ .Environment.Name }}.yaml
+
+  - name: rriv-queue
+    namespace: default
+    chart: ../charts/queue/
+    version: 0.1.0
+    values:
+      - ../charts/queue/values-{{ .Environment.Name }}.yaml
+  
+  # - name: rriv-emissary
+  #   namespace: emissary
+  #   chart: ../charts/emissary/
+  #   version: 0.1.0
+  #   values:
+  #     - ../charts/emissary/values.yaml
+
+  # - name: rriv-chirpstack
+  #   namespace: default
+  #   chart: ../charts/chirpstack/
+  #   version: 4.0.0
+  #   values:
+  #     - ../charts/chirpstack/values-{{ .Environment.Name }}.yaml
+
+  # - name: rriv-lorawan-simulator # TODO: dev-only
+  #   namespace: default
+  #   chart: ../charts/lorawan-simulator/
+  #   version: 0.1.0
+  #   values:
+  #     - ../charts/lorawan-simulator/values-{{ .Environment.Name }}.yaml

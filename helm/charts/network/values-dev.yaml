@@ -1,0 +1,59 @@
+digitaloceanApiTokenSecret:
+  name: dev-digitalocean-api-key
+  key: api-token
+  namespace: cert-manager
+
+certificate:
+  name: rriv-org-cert
+  secretName: rriv-org-tls
+  dnsNames:
+    - rriv.org
+    - '*.rriv.org'
+    - '*.chirp.rriv.org'
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+
+clusterIssuer:
+  server: https://acme-v02.api.letsencrypt.org/directory
+  email: dev@rriv.org
+  privateKeySecretRef:
+    name: letsencrypt-account-key
+  digitalocean:
+    apiTokenSecretRef:
+      name: dev-digitalocean-api-key
+      key: api-token
+
+externalSecret:
+  name: dev-digitalocean-api-key
+  namespace: cert-manager
+  secretStoreRef:
+    name: dev-digitalocean-secret-store
+    namespace: cert-manager
+    kind: SecretStore
+    vault:
+      server: http://vault-dev.rriv.org:8200
+      path: "secret"
+      version: v2
+      
+  data:
+    secretKey: api-token
+    remoteRef:
+      key: secret/dev-digitalocean-api-key
+      property: api-token
+
+ingress:
+  secretName: rriv-org-tls
+  hosts:
+    keycloak: auth.rriv.org
+    vault: vault-dev.rriv.org
+    chirpstack: chirp.rriv.org
+    chirpstackConsole: console.chirp.rriv.org
+
+ingress-nginx:
+  controller:
+    enabled: true
+    publishService:
+      enabled: true
+    service:
+      type: LoadBalancer

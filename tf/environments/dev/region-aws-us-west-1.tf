@@ -1,5 +1,5 @@
 module "dev_aws_us-west-1_vault" {
-  source = "../../modules/aws/vault"
+  source = "../../modules/aws/vault-iam-user"
   providers = {
     aws = aws.dev-us-west-1
   }

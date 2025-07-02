@@ -1,0 +1,106 @@
+vault:
+  enabled: true
+
+  server:
+    standalone:
+      enabled: false
+    dev:
+      enabled: false
+    ha:
+      enabled: true
+      replicas: 1
+      dataStorage:
+        enabled: true
+        size: 1Gi
+        storageClass: standard
+      raft:
+        enabled: true
+        config: |
+          seal "awskms" {
+            region = "us-west-1"
+            secret_key = "env://AWS_SECRET_ACCESS_KEY"
+            access_key = "env://AWS_ACCESS_KEY_ID"
+            kms_key_id = "env://VAULT_AWSKMS_SEAL_KEY_ID"
+          }
+          listener "tcp" {
+            address = "0.0.0.0:8200"
+            cluster_address = "0.0.0.0:8201"
+            tls_cert_file = "/vault/userconfig/vault-tls/tls.crt"
+            tls_key_file = "/vault/userconfig/vault-tls/tls.key"
+            tls_disable = 0
+          }
+          storage "raft" {
+            path = "/vault/data"
+            node_id = "$(POD_NAME)"
+          }
+          service_registration "kubernetes" {}
+          api_addr     = "https://$(POD_NAME).vault-internal:8200"
+          cluster_addr = "https://$(POD_NAME).vault-internal:8201"
+          disable_mlock = true
+          ui = true
+
+    extraArgs: "-log-level=debug"
+    # extraConfig: |
+    extraEnvironmentVars:
+      # VAULT_CACERT: /vault/userconfig/vault-tls/vault.ca # needed for mutual TLS
+      VAULT_TLSCERT: /vault/userconfig/vault-tls/tls.crt
+      VAULT_TLSKEY: /vault/userconfig/vault-tls/tls.key
+
+    extraSecretEnvironmentVars:
+      - envName: AWS_ACCESS_KEY_ID
+        secretName: vault-aws-access-key
+        secretKey: AWS_ACCESS_KEY_ID
+      - envName: AWS_SECRET_ACCESS_KEY
+        secretName: vault-aws-access-key
+        secretKey: AWS_SECRET_ACCESS_KEY
+      - envName: VAULT_AWSKMS_SEAL_KEY_ID
+        secretName: vault-aws-kms-key
+        secretKey: KMS_KEY_ID
+
+    volumes:
+      - name: userconfig-vault-tls
+        secret:
+          defaultMode: 420
+          secretName: vault-tls
+
+    volumeMounts:
+      - mountPath: /vault/userconfig/vault-tls
+        name: userconfig-vault-tls
+        readOnly: true
+    
+    readinessProbe:
+      enabled: true
+      httpGet:
+        path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+        port: 8200
+        scheme: HTTPS
+      initialDelaySeconds: 5
+      timeoutSeconds: 5
+
+  service:
+    enabled: true
+    # Headless service required for Raft clustering
+    headless:
+      enabled: true
+  
+  ui:
+    enabled: true
+    serviceType: LoadBalancer
+
+clusterIssuer:
+  server: https://acme-v02.api.letsencrypt.org/directory
+  email: dev@rriv.org
+  privateKeySecretRef:
+    name: letsencrypt-account-key
+  digitalocean:
+    apiTokenSecretRef:
+      name: dev-digitalocean-api-key
+      key: api-token
+certificate:
+  name: vault-cert
+  secretName: vault-tls
+  dnsNames:
+    - vault-dev.rriv.org
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

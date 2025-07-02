@@ -1,0 +1,60 @@
+kubeContext: {{ .Environment.Values.vaultKubeContext }}
+
+repositories:
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: external-secrets
+    url: https://charts.external-secrets.io
+  - name: hashicorp
+    url: https://helm.releases.hashicorp.com
+
+releases:
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.17.2
+    createNamespace: true
+    set:
+      - name: crds.enabled
+        value: true
+
+  - name: external-secrets
+    namespace: external-secrets
+    chart: external-secrets/external-secrets
+    version: 0.17.0
+    createNamespace: true
+    set:
+      - name: crds.enabled
+        value: true
+    needs:
+      - cert-manager/cert-manager
+
+  - name: rriv-vault
+    namespace: vault
+    chart: ../charts/vault/
+    version: 0.1.0
+    createNamespace: true
+    values:
+      - ../charts/vault/values-{{ .Environment.Name }}.yaml
+    needs:
+      - cert-manager/cert-manager
+      - external-secrets/external-secrets
+
+  - name: vault-secrets-operator
+    namespace: vault-secrets-operator
+    chart: hashicorp/vault-secrets-operator
+    version: 0.10.0
+    createNamespace: true
+    set:
+      - name: vaultAddress
+        value: "https://vault.vault.svc.cluster.local:8200"
+      - name: vaultNamespace
+        value: "vault"
+      - name: vaultAuthMethod
+        value: "kubernetes"
+      - name: vaultKubernetesRole
+        value: "vault-secrets-operator"
+      - name: vaultKubernetesMountPath
+        value: "kubernetes"
+    needs:
+      - vault/rriv-vault

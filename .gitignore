@@ -5,6 +5,7 @@
 # hidden files, excluding gitattributes
 .*
 !.gitattributes
+!.zshrc.example
 
 # data folder
 charts/**/data/
@@ -16,6 +17,7 @@ charts/**/data/**
 **.key
 **.pem
 **.crt
+!**/letsencrypt-ca.crt
 
 # Terraform files
 **/*secrets.auto.tfvars
@@ -23,3 +25,4 @@ charts/**/data/**
 **/*.tfstate
 **/*.tfstate.*
 **/charts/*.tgz
+tf/**/kubeconfig-*.yaml

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: network
+description: Networking resources for rriv application
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+dependencies:
+  - name: external-secrets
+    repository: https://charts.external-secrets.io
+    version: 0.17.0
+  - name: cert-manager
+    repository: https://charts.jetstack.io
+    version: 1.17.2

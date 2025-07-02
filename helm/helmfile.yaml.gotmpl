@@ -1,0 +1,19 @@
+environments:
+  dev:
+    values:
+      - environments/dev.yaml
+  staging:
+    values:
+      - environments/staging.yaml
+  prod:
+    values:
+      - environments/prod.yaml
+
+helmfiles:
+  - path: helmfiles/vault.yaml.gotmpl
+    values:
+      - /home/rootkat/Documents/code/rriv/rriv-cloud/helm/environments/{{ .Environment.Name }}.yaml
+  # - path: helmfiles/rriv.yaml.gotmpl
+  #   values:
+  #     - /home/rootkat/Documents/code/rriv/rriv-cloud/helm/environments/{{ .Environment.Name }}.yaml
+

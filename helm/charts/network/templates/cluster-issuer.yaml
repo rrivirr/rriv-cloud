@@ -1,0 +1,17 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # The ACME server URL for Let's Encrypt
+    server: {{ .Values.clusterIssuer.server }}  # e.g., https://acme-v02.api.letsencrypt.org/directory
+    email: {{ .Values.clusterIssuer.email }}
+    privateKeySecretRef:
+      name:  {{ .Values.clusterIssuer.privateKeySecretRef.name }}  # The Secret where the private key will be stored
+    solvers:
+      - dns01:
+          digitalocean:
+            tokenSecretRef:
+              name: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.name }}  # The Secret containing the DigitalOcean API token
+              key: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.key }}  # The key within the Secret that contains the API token

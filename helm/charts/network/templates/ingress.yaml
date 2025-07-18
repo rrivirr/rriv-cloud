@@ -48,7 +48,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: external-vault
+                name: external-vault-connect
                 port:
                   number: 8200
     - host: {{ .Values.ingress.hosts.chirpstack }}

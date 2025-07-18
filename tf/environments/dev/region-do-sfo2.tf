@@ -1,12 +1,25 @@
-module "dev_do_sfo2_k8s_cluster" {
+module "dev_do_sfo2_k8s_vault_cluster" {
   source = "../../modules/do/k8s-cluster"
   providers = {
     digitalocean = digitalocean
   }
 
   env          = local.env
+  service      = "vault"
   do_region    = local.do_region
-  node_count   = local.cluster_node_count
+  node_count   = local.vault_cluster_node_count
+}
+
+module "dev_do_sfo2_k8s_rriv_cluster" {
+  source = "../../modules/do/k8s-cluster"
+  providers = {
+    digitalocean = digitalocean
+  }
+
+  env          = local.env
+  service      = "rriv"
+  do_region    = local.do_region
+  node_count   = local.rriv_cluster_node_count
 }
 
 module "dev_do_sfo2_vpn" {
@@ -21,7 +34,7 @@ module "dev_do_sfo2_vpn" {
   tailscale_authkey = var.vpn_tailscale_authkey
 }
 
-module "dev_k8s_sfo2_aws_secrets" {
+module "dev_k8s_sfo2_secrets" {
   source = "../../modules/k8s/secrets"
   providers = {
     kubernetes = kubernetes.dev-sfo2-vault
@@ -35,6 +48,20 @@ module "dev_k8s_sfo2_aws_secrets" {
 
   depends_on = [
     module.dev_aws_us-west-1_vault,
-    module.dev_do_sfo2_k8s_cluster,
+    module.dev_do_sfo2_k8s_vault_cluster,
+  ]
+}
+
+module "dev_vault_sfo2" {
+  source = "../../modules/vault"
+  providers = {
+    vault = vault.dev-sfo2-vault
+  }
+
+  token_reviewer_jwt    = module.dev_k8s_sfo2_secrets.vault_auth_token_data
+  kubernetes_ca_cert    = module.dev_k8s_sfo2_secrets.vault_auth_ca_cert
+
+  depends_on = [
+    module.dev_k8s_sfo2_secrets
   ]
 }

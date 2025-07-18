@@ -3,6 +3,11 @@ variable "env" {
   type        = string
 }
 
+variable "service" {
+  description = "The service name for the Kubernetes cluster"
+  type        = string
+}
+
 variable "do_region" {
   description = "DigitalOcean region for the Kubernetes cluster"
   type        = string

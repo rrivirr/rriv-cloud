@@ -25,4 +25,4 @@ charts/**/data/**
 **/*.tfstate
 **/*.tfstate.*
 **/charts/*.tgz
-tf/**/kubeconfig-*.yaml
+tf/**/kubeconfig/*.yaml

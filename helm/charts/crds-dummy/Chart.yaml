@@ -1,0 +1,6 @@
+apiVersion: v2
+name: crds-dummy
+description: A dummy chart for running CRD installation hooks
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

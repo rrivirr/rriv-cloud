@@ -1,7 +1,13 @@
 # Modify and add this to your .zshrc or .bashrc file
 # Note that multi-file kubeconfig is not supported by kubectx, so you need to use 'kubectl config'
-export RRIV_PROJECT_PATH="$HOME/path/to/rriv-cloud/"
-export KUBECONFIG="$RRIV_PROJECT_PATH/tf/modules/do/k8s-cluster/kubeconfig-dev.yaml":"$RRIV_PROJECT_PATH/tf/modules/do/k8s-cluster/kubeconfig-staging.yaml":"$RRIV_PROJECT_PATH/tf/modules/do/k8s-cluster/kubeconfig-prod.yaml"
+export RRIV_PROJECT_PATH="$HOME/path/to/rriv-cloud"
+export K8S_DIRECTORY="$RRIV_PROJECT_PATH/tf/modules/do/k8s-cluster/kubeconfig"
+export KUBECONFIG="$K8S_DIRECTORY/vault-dev.yaml"\
+:"$K8S_DIRECTORY/rriv-dev.yaml"\
+:"$K8S_DIRECTORY/vault-staging.yaml"\
+:"$K8S_DIRECTORY/rriv-staging.yaml"\
+:"$K8S_DIRECTORY/vault-prod.yaml"\
+:"$K8S_DIRECTORY/rriv-prod.yaml"
 
 # Get these from your DigitalOcean account.
 # They should match the values for access_key and secret_key in tf/environments/../backend.hcl

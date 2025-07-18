@@ -9,7 +9,7 @@ certificate:
   dnsNames:
     - rriv.org
     - '*.rriv.org'
-    - '*.chirp.rriv.org'
+    - '*.chirp-dev.rriv.org'
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
@@ -47,8 +47,8 @@ ingress:
   hosts:
     keycloak: auth.rriv.org
     vault: vault-dev.rriv.org
-    chirpstack: chirp.rriv.org
-    chirpstackConsole: console.chirp.rriv.org
+    chirpstack: chirp-dev.rriv.org
+    chirpstackConsole: console.chirp-dev.rriv.org
 
 ingress-nginx:
   controller:

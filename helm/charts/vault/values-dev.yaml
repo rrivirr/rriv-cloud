@@ -1,6 +1,5 @@
 vault:
   enabled: true
-
   server:
     standalone:
       enabled: false

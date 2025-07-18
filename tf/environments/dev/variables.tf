@@ -39,3 +39,8 @@ variable "vault_tls_key_file" {
   description = "Path to the Vault TLS key file"
   type        = string
 }
+
+variable "vault_token" {
+  description = "Terraform admin temporary token from vault-kubernetes.sh"
+  type        = string
+}

@@ -1,19 +1,37 @@
 kubeContext: {{ .Environment.Values.kubeContext }}
 
+repositories:
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: external-secrets
+    url: https://charts.external-secrets.io
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+
 releases:
-  - name: rriv-external-vault
+  # - name: rriv-external-secrets
+  - name: external-secrets
+    namespace: external-secrets
+    chart: external-secrets/external-secrets
+    version: 0.17.0
+    createNamespace: true
+    set:
+      - name: crds.enabled
+        value: true
+
+  - name: rriv-external-vault-connect
     namespace: default
-    chart: ../charts/external-vault/
+    chart: ../charts/external-vault-connect/
     version: 0.1.0
     values:
-      - ../charts/external-vault/values-{{ .Environment.Name }}.yaml
+      - ../charts/external-vault-connect/values-{{ .Environment.Name }}.yaml
 
-  - name: ingress-nginx
+  - name: rriv-ingress-nginx
     namespace: ingress-nginx
     chart: ingress-nginx/ingress-nginx
     version: 4.12.2
     values:
-      - ../charts/network/values-{{ .Environment.Name }}.yaml # or a dedicated values file
+      - ../charts/network/values-{{ .Environment.Name }}.yaml
 
   - name: rriv-network
     namespace: default
@@ -21,20 +39,23 @@ releases:
     version: 0.1.0
     values:
       - ../charts/network/values-{{ .Environment.Name }}.yaml
+    needs:
+      - ingress-nginx/rriv-ingress-nginx
+      # - external-secrets/rriv-external-secrets
 
-  - name: rriv-keycloak
-    namespace: default
-    chart: ../charts/keycloak/
-    version: 0.1.0
-    values:
-      - ../charts/keycloak/values-{{ .Environment.Name }}.yaml
+  # - name: rriv-keycloak
+  #   namespace: default
+  #   chart: ../charts/keycloak/
+  #   version: 0.1.0
+  #   values:
+  #     - ../charts/keycloak/values-{{ .Environment.Name }}.yaml
 
-  - name: rriv-queue
-    namespace: default
-    chart: ../charts/queue/
-    version: 0.1.0
-    values:
-      - ../charts/queue/values-{{ .Environment.Name }}.yaml
+  # - name: rriv-queue
+  #   namespace: default
+  #   chart: ../charts/queue/
+  #   version: 0.1.0
+  #   values:
+  #     - ../charts/queue/values-{{ .Environment.Name }}.yaml
   
   # - name: rriv-emissary
   #   namespace: emissary

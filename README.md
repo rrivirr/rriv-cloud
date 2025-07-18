@@ -76,28 +76,7 @@ The Vault cluster is still maintained under the same root helmfile, as a separat
 
 ### Initial setup
 
-You may need to manually install the dependencies with the CRDs:
-```
-helm repo add jetstack https://charts.jetstack.io
-helm repo add external-secrets https://charts.external-secrets.io
-helm repo add hashicorp https://helm.releases.hashicorp.com
-helm repo update
-
-helm install cert-manager jetstack/cert-manager \
-  --namespace cert-manager \
-  --create-namespace \
-  --set crds.enabled=true
-
-helm install external-secrets external-secrets/external-secrets \
-    --namespace external-secrets \
-    --create-namespace \
-    --set crds.enabled=true
-
-helm install vault-secrets-operator hashicorp/vault-secrets-operator \
-    --namespace vault-secrets-operator \
-    --create-namespace \
-    --set crds.enabled=true
-```
+You may need to [manually install the dependencies with the CRDs](./00-helm-install.sh).
 
 After this you may run `helmfile -e $ENV apply`.
 
@@ -129,7 +108,11 @@ Success! Vault is initialized
 ```
 After this, it is **critical** that you write down the recovery keys and root token. **SAVE** these in Proton Pass. Save half of the recovery keys and distribute half to another admin.
 
+You must now exec into the rriv-vault-0 pod and unseal Vault. You only need to do this once.
+
 Now, if the vault pod goes down, it should be able to come up and unseal itself. Test this by deleting the pod and checking its logs.
+
+The Terraform Vault module needs a bit of manual work to set up. Once you have Vault installed, you will need to create a temporary token in order to set up the Vault auth method for k8s. Refer to vault-kubernetes.sh.
 
 ### How it works
 

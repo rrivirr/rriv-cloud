@@ -59,3 +59,11 @@ resource "local_file" "letsencrypt_ca_cert" {
   content  = file("${path.module}/static/letsencrypt-ca.crt")
   filename = "${path.module}/static/letsencrypt-ca.crt"
 }
+
+
+data "kubernetes_secret" "vault_auth_token_data" {
+  metadata {
+    name      = "vault-auth-token"
+    namespace = "vault"
+  }
+}

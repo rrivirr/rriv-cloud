@@ -14,12 +14,12 @@ output "vault_iam_user_access_key_id" {
 }
 
 output "vault_k8s_cluster_kubeconfig" {
-  value       = module.dev_do_sfo2_k8s_cluster.vault_kubeconfig
+  value       = module.dev_do_sfo2_k8s_vault_cluster.cluster_kubeconfig
   sensitive   = true
   description = "Kubeconfig for the Vault Kubernetes cluster"
 }
 
 output "vault_k8s_cluster_kubeconfig_path" {
-  value       = module.dev_do_sfo2_k8s_cluster.vault_kubeconfig_path
+  value       = module.dev_do_sfo2_k8s_vault_cluster.cluster_kubeconfig_path
   description = "Path to the kubeconfig file for the Vault Kubernetes cluster"
 }

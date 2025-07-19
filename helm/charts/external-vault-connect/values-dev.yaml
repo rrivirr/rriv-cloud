@@ -1,1 +1,2 @@
-externalVaultIP: 138.197.234.14
+# load balancer IP. Will change if lb is deleted & recreated
+externalVaultIP: 167.172.8.236

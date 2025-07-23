@@ -3,6 +3,9 @@ keycloak:
   #   host: rriv-dev-do-user-18089096-0.j.db.ondigitalocean.com
   extraArgs:
     - start-dev
+  image:
+    repository: quay.io/keycloak/keycloak
+    tag: 26.0.7
 
 webfingerDeployment:
   image: kleipper/rriv-webfinger-app:latest # TODO: put this in a rriv docker account

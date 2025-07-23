@@ -1,0 +1,17 @@
+externalSecret:
+  name: staging-digitalocean-api-key
+  namespace: cert-manager
+  secretStoreRef:
+    name: staging-digitalocean-secret-store
+    namespace: cert-manager
+    kind: SecretStore
+    vault:
+      server: http://vault-staging.rriv.org:8200
+      path: "secret"
+      version: v2
+      
+  data:
+    secretKey: api-token
+    remoteRef:
+      key: secret/staging-digitalocean-api-key
+      property: api-token

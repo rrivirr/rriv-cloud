@@ -17,7 +17,7 @@ variable "do_region" {
 variable "k8s_version" {
   description = "Kubernetes version for the cluster"
   type        = string
-  default     = "1.33.1-do.0"
+  default     = "1.33.1-do.2"
 }
 
 variable "node_size" {
@@ -29,4 +29,10 @@ variable "node_size" {
 variable "node_count" {
   description = "Number of nodes in the Kubernetes cluster"
   type    = number
+}
+
+variable "vpc_id" {
+  description = "VPC ID for the Kubernetes cluster"
+  type        = string
+  default     = null
 }

@@ -45,7 +45,7 @@ externalSecret:
 ingress:
   secretName: rriv-org-tls
   hosts:
-    keycloak: auth.rriv.org
+    keycloak: auth-dev.rriv.org
     vault: vault-dev.rriv.org
     chirpstack: chirp-dev.rriv.org
     chirpstackConsole: console.chirp-dev.rriv.org

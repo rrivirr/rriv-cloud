@@ -25,21 +25,6 @@ variable "vpn_tailscale_authkey" {
   description = "Tailscale auth key for the exit node"
 }
 
-variable "vault_tls_cert_file" {
-  description = "Path to the Vault TLS certificate file"
-  type        = string
-}
-
-variable "vault_tls_ca_file" {
-  description = "Path to the Vault TLS CA file"
-  type        = string
-}
-
-variable "vault_tls_key_file" {
-  description = "Path to the Vault TLS key file"
-  type        = string
-}
-
 variable "vault_token" {
   description = "Terraform admin temporary token from vault-kubernetes.sh"
   type        = string

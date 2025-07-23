@@ -24,6 +24,13 @@ We use helm for configuring the k8s clusters. Additionally, the DO infrastructur
 AWS is used sparingly. Its main purpose is to act as the guardian of our Vault root token. For this, we have some very basic infrastructure captured in Terraform as well, stored again in DigitalOcean statefiles.
 
 ## How-Tos
+### Deployment order
+
+1. TODO: Terraform to set up SSO users and provision the environment accounts from the management account: rriv-dev, etc
+2. Terraform postgres module, keycloak-bootstrap-creds, vault cluster and rriv cluster modules
+3. Helm resources for the Vault cluster
+4. 
+
 ### First-time setup
 In order to get set up with k8s, you must first be able to run the terraform. The tf maintains the k8s cluster itself and everything around it. Helm maintains everything inside the cluster.
 
@@ -106,6 +113,8 @@ Initial Root Token: ...
 Success! Vault is initialized
 ...
 ```
+(If any of this errors, try adding the flag: `-tls-skip-verify`)
+
 After this, it is **critical** that you write down the recovery keys and root token. **SAVE** these in Proton Pass. Save half of the recovery keys and distribute half to another admin.
 
 You must now exec into the rriv-vault-0 pod and unseal Vault. You only need to do this once.
@@ -174,3 +183,6 @@ Keycloak is used as an identity provider throughout the project. Its purpose is 
 You must authenticate with DO and AWS before running terraform. Use `doctl` to authenticate to DO.
 
 For AWS, you need an SSO user. After logging in, you will have the option to retrieve access/secret keys. Paste these into your terminal and run `aws sts get-caller-identity` to verify that you are logged in as a user with an admin role.
+
+### A note about the kubernets cluster resource node_size variable
+To update the node_size variable in the k8s-cluster module, you must NOT allow the cluster to be destroyed. This is a shortcoming of the current setup. Upgrade each node one at a time to the new size, and change the node_size value to reflect the changes when you are done. Vault data is persisted in k8s persistent volumes, but currently, they will be destroyed if the entire cluster is destroyed. Having the nodes come back up one at a time ensures that there is always a leader node that can pass the data along.

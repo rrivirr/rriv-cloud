@@ -1,0 +1,59 @@
+digitaloceanApiTokenSecret:
+  name: staging-digitalocean-api-key
+  key: api-token
+  namespace: cert-manager
+
+certificate:
+  name: rriv-org-cert
+  secretName: rriv-org-tls
+  dnsNames:
+    - rriv.org
+    - '*.rriv.org'
+    - '*.chirp-staging.rriv.org'
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+
+clusterIssuer:
+  server: https://acme-v02.api.letsencrypt.org/directory
+  email: staging@rriv.org
+  privateKeySecretRef:
+    name: letsencrypt-account-key
+  digitalocean:
+    apiTokenSecretRef:
+      name: staging-digitalocean-api-key
+      key: api-token
+
+externalSecret:
+  name: staging-digitalocean-api-key
+  namespace: cert-manager
+  secretStoreRef:
+    name: staging-digitalocean-secret-store
+    namespace: cert-manager
+    kind: SecretStore
+    vault:
+      server: http://vault-staging.rriv.org:8200
+      path: "secret"
+      version: v2
+      
+  data:
+    secretKey: api-token
+    remoteRef:
+      key: secret/staging-digitalocean-api-key
+      property: api-token
+
+ingress:
+  secretName: rriv-org-tls
+  hosts:
+    keycloak: auth-staging.rriv.org
+    vault: vault-staging.rriv.org
+    chirpstack: chirp-staging.rriv.org
+    chirpstackConsole: console.chirp-staging.rriv.org
+
+ingress-nginx:
+  controller:
+    enabled: true
+    publishService:
+      enabled: true
+    service:
+      type: LoadBalancer

@@ -17,6 +17,10 @@ resource "vault_generic_endpoint" "kat_user" {
     password = random_password.kat_password.result
     policies = ["users", "webapp", "keycloak", "oidc-provider"]
   })
+
+  lifecycle {
+    ignore_changes = [data_json] # optional, avoids overwriting password managed by random_password
+  }
 }
 
 resource "vault_identity_entity_alias" "kat_userpass" {

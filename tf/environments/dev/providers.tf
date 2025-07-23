@@ -21,7 +21,7 @@ terraform {
 
   # See backend.hcl.example
   # Use the backend file with the command:
-  # terraform init -backend-config=backend-prod.hcl
+  # terraform init -backend-config=backend.hcl
 
   backend "s3" {
     bucket = "" 
@@ -55,9 +55,15 @@ provider "aws" {
 }
 
 provider "kubernetes" {
-  alias         = "dev-sfo2-vault"
+  alias         = "dev-sfo2-k8s-vault"
   config_path    = module.dev_do_sfo2_k8s_vault_cluster.cluster_kubeconfig_path
   config_context = "do-${local.do_region}-vault-${local.env}"
+}
+
+provider "kubernetes" {
+  alias         = "dev-sfo2-k8s-rriv"
+  config_path    = module.dev_do_sfo2_k8s_rriv_cluster.cluster_kubeconfig_path
+  config_context = "do-${local.do_region}-rriv-${local.env}"
 }
 
 provider "vault" {

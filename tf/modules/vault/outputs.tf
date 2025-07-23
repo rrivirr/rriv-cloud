@@ -1,3 +1,4 @@
-# output "kat_password" {
-#   value = random_password.kat_password.result
-# }
+output "kat_password" {
+  value = random_password.kat_password.result
+  sensitive = true
+}

@@ -18,52 +18,51 @@ spec:
         app: keycloak
       annotations:
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/role: 'keycloak-role'
+        vault.hashicorp.com/role: 'keycloak'
+        vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
         vault.hashicorp.com/audience: "vault"
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/dev-keycloak-creds'
+        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Values.global.environment }}-keycloak-creds'
         # escape vault template syntax for Helm
-        vault.hashicorp.com/agent-inject-template-credentials: |
-          {{`{{- with secret "secret/data/dev-keycloak-creds" -}}`}}
-          export KC_BOOTSTRAP_ADMIN_USERNAME={{`{{ .Data.data.username }}`}}
-          export KC_BOOTSTRAP_ADMIN_PASSWORD={{`{{ .Data.data.password }}`}}
-          export DB_USER="{{`{{ .Data.data.username }}`}}"
-          export DB_PASSWORD="{{`{{ .Data.data.password }}`}}"
-          export DB_DATABASE="{{`{{ .Data.data.database }}`}}"
-          export DB_ADDR="{{`{{ .Data.data.host }}`}}"
+        vault.hashicorp.com/agent-inject-template-credentials.txt: |
+          {{`{{- with secret "secret/data/`}}{{ .Values.global.environment }}{{`-keycloak-creds" -}}`}}
+          export KC_BOOTSTRAP_ADMIN_USERNAME="{{`{{ .Data.data.keycloak_username }}`}}"
+          export KC_BOOTSTRAP_ADMIN_PASSWORD="{{`{{ .Data.data.keycloak_password }}`}}"
+          export KC_DB_URL_HOST="{{`{{ .Data.data.db_host }}`}}"
+          export KC_DB_URL_PORT="{{`{{ .Data.data.db_port }}`}}"
+          export KC_DB_URL_DATABASE="{{`{{ .Data.data.db_name }}`}}"
+          export KC_DB_USERNAME="{{`{{ .Data.data.db_username }}`}}"
+          export KC_DB_PASSWORD="{{`{{ .Data.data.db_password }}`}}"
           {{`{{- end }}`}}
     spec:
+      serviceAccountName: keycloak-sa
       containers:
         - name: keycloak
-          image: quay.io/keycloak/keycloak:26.0.7
-          args: {{ .Values.keycloak.extraArgs | toJson }}
+          image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
+          command: ["/bin/bash", "-c"]
+          args: 
+            - |
+              source /vault/secrets/credentials.txt
+              export KC_DB_URL="jdbc:postgresql://${KC_DB_URL_HOST}:${KC_DB_URL_PORT}/${KC_DB_URL_DATABASE}?sslmode=require"
+              export KC_DB_USERNAME="${KC_DB_USERNAME}"
+              export KC_DB_PASSWORD="${KC_DB_PASSWORD}"
+              exec /opt/keycloak/bin/kc.sh {{ .Values.keycloak.extraArgs | join " " }}
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 50m
+              memory: 256Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 200m
+              memory: 512Mi
           env:
+            - name: KC_DB
+              value: "postgres"
             - name: KC_PROXY_HEADERS
               value: "xforwarded"
             - name: KC_HTTP_ENABLED
               value: "true"
             - name: KC_HEALTH_ENABLED
               value: "true"
-            - name: DB_VENDOR
-              value: postgres
-            - name: DB_USER
-              value: "$(DB_USER)"
-            - name: DB_PASSWORD
-              value: "$(DB_PASSWORD)"
-            - name: DB_ADDR
-              value: "$(DB_ADDR)"
-            - name: DB_DATABASE
-              value: "$(DB_DATABASE)"
-            - name: KEYCLOAK_ADMIN
-              value: "$(KC_BOOTSTRAP_ADMIN_USERNAME)"
-            - name: KEYCLOAK_ADMIN_PASSWORD
-              value: "$(KC_BOOTSTRAP_ADMIN_PASSWORD)"
+
           ports:
             - name: http
               containerPort: 8080

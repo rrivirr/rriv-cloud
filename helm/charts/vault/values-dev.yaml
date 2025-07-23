@@ -1,3 +1,6 @@
+global:
+  environment: "dev"
+
 vault:
   enabled: true
   server:

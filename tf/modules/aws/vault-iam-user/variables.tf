@@ -3,12 +3,7 @@ variable "env" {
   description = "Environment name"
 }
 
-variable "vault_tls_cert_json" {
-  description = "JSON string containing the Vault TLS certificate, key, and CA"
-  type        =  object({
-    cert = string
-    key  = string
-    ca   = string
-  })
-  sensitive   = true
-}
+# variable "vault_tls_cert_arn" {
+#   description = "ARN of the Vault TLS certificate"
+#   type        = string
+# }

@@ -21,7 +21,7 @@ charts/**/data/**
 
 # Terraform files
 **/*secrets.auto.tfvars
-**/backend-*.hcl
+**/backend.hcl
 **/*.tfstate
 **/*.tfstate.*
 **/charts/*.tgz

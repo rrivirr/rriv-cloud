@@ -1,0 +1,128 @@
+global:
+  environment: "staging"
+
+vault:
+  enabled: true
+  server:
+    standalone:
+      enabled: false
+    staging:
+      enabled: false
+    ha:
+      enabled: true
+      replicas: 1
+      dataStorage:
+        enabled: true
+        size: 1Gi
+        storageClass: standard
+      raft:
+        enabled: true
+        config: |
+          seal "awskms" {
+            region = "us-west-1"
+            secret_key = "env://AWS_SECRET_ACCESS_KEY"
+            access_key = "env://AWS_ACCESS_KEY_ID"
+            kms_key_id = "env://VAULT_AWSKMS_SEAL_KEY_ID"
+          }
+          listener "tcp" {
+            address = "0.0.0.0:8200"
+            cluster_address = "0.0.0.0:8201"
+            tls_cert_file = "/vault/userconfig/vault-tls/tls.crt"
+            tls_key_file = "/vault/userconfig/vault-tls/tls.key"
+            # tls_ca_file   = "/vault/userconfig/vault-tls/ca.crt"
+            tls_disable = 0
+            tls_min_version = "tls12"
+            tls_require_and_verify_client_cert = false
+          }
+
+          storage "raft" {
+            path = "/vault/data"
+            node_id = "$(POD_NAME)"
+          }
+          service_registration "kubernetes" {}
+          api_addr = "https://vault-staging.rriv.org:8200"
+          cluster_addr = "https://vault-staging.rriv.org:8201"
+          disable_mlock = true
+          ui = true
+
+    extraArgs: "-log-level=debug"
+    extraEnvironmentVars:
+      RRIV_VAULT_CACERT: /vault/userconfig/letsencrypt/ca.crt
+      RRIV_VAULT_TLSCERT: /vault/userconfig/vault-tls/tls.crt
+      RRIV_VAULT_TLSKEY: /vault/userconfig/vault-tls/tls.key
+      RRIV_VAULT_API_ADDR: https://vault-staging.rriv.org:8200
+      # RRIV_VAULT_SKIP_VERIFY: "true"
+      VAULT_ADDR: https://127.0.0.1:8200
+
+    extraSecretEnvironmentVars:
+      - envName: AWS_ACCESS_KEY_ID
+        secretName: vault-aws-access-key
+        secretKey: AWS_ACCESS_KEY_ID
+      - envName: AWS_SECRET_ACCESS_KEY
+        secretName: vault-aws-access-key
+        secretKey: AWS_SECRET_ACCESS_KEY
+      - envName: VAULT_AWSKMS_SEAL_KEY_ID
+        secretName: vault-aws-kms-key
+        secretKey: KMS_KEY_ID
+
+    volumes:
+      - name: userconfig-vault-tls
+        secret:
+          defaultMode: 420
+          secretName: vault-tls
+      - name: userconfig-letsencrypt
+        secret:
+          defaultMode: 420
+          secretName: staging-letsencrypt-ca-cert
+
+    volumeMounts:
+      - mountPath: /vault/userconfig/vault-tls
+        name: userconfig-vault-tls
+        readOnly: true
+      - mountPath: /vault/userconfig/letsencrypt
+        name: userconfig-letsencrypt
+        readOnly: true
+    
+    readinessProbe:
+      enabled: false
+    livenessProbe:
+      httpGet:
+        path: /v1/sys/health
+        port: 8200
+        scheme: HTTPS
+      initialDelaySeconds: 60
+      timeoutSeconds: 10
+      periodSeconds: 30
+      successThreshold: 1
+      failureThreshold: 3
+
+  service:
+    enabled: true
+    # Headless service required for Raft clustering
+    headless:
+      enabled: true
+    annotations:
+      service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+      service.beta.kubernetes.io/do-loadbalancer-tls-ports: "8200"
+  
+  ui:
+    enabled: true
+    serviceType: LoadBalancer
+
+clusterIssuer:
+  server: https://acme-v02.api.letsencrypt.org/directory
+  email: staging@rriv.org
+  privateKeySecretRef:
+    name: letsencrypt-account-key
+  digitalocean:
+    apiTokenSecretRef:
+      name: staging-digitalocean-api-key
+      key: api-token
+certificate:
+  name: vault-cert
+  secretName: vault-tls
+  dnsNames:
+    - vault-staging.rriv.org
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

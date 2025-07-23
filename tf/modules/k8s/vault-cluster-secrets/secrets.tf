@@ -61,9 +61,9 @@ resource "local_file" "letsencrypt_ca_cert" {
 }
 
 
-data "kubernetes_secret" "vault_auth_token_data" {
-  metadata {
-    name      = "vault-auth-token"
-    namespace = "vault"
-  }
-}
+# data "kubernetes_secret" "vault_auth_token_data" {
+#   metadata {
+#     name      = "vault-auth-token"
+#     namespace = "vault"
+#   }
+# }

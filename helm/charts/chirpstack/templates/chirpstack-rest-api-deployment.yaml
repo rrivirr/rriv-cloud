@@ -19,15 +19,12 @@ spec:
         kompose.version: 1.34.0 (HEAD)
         vault.hashicorp.com/agent-inject: 'true'
         vault.hashicorp.com/role: 'webapp'
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Environment.Name }}-chirpstack-db-creds'
+        vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
+        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Values.environment }}-chirpstack-db-creds'
         vault.hashicorp.com/agent-inject-template-credentials: |
-          {{- with secret "secret/data/{{ .Environment.Name }}-chirpstack-db-creds" -}}
-          export PG_USERNAME={{ .Data.data.username }}
-          export PG_PASSWORD={{ .Data.data.password }}
-          export PG_HOST={{ .Data.data.host }}
-          export PG_DBNAME={{ .Data.data.database }}
-          export PG_PORT={{ .Data.data.port }}
-          {{- end }}
+          {{`{{- with secret "secret/data/`}}{{ .Values.environment }}{{`-chirpstack-db-creds" -}}`}}
+          export POSTGRES_CONN_STRING={{`{{ .Data.data.pg_chirpstack_connection_string }}`}}
+          {{`{{- end }}`}}
       
       labels:
         io.kompose.service: chirpstack-rest-api

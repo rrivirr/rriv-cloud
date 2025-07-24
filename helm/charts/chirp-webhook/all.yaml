@@ -1,0 +1,194 @@
+# nginx
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timescale-bridge
+  namespace: timescale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timescale-bridge
+  template:
+    metadata:
+      labels:
+        app: timescale-bridge
+    spec:
+      containers:
+      - name: nginx
+        image: node
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Starting the application..."
+            npm install -g express
+            npm install -g pg
+            cd `npm root -g`
+            pwd
+            node <<EOF
+
+              function insert(body){
+
+                const { time, deviceInfo: { devEui }, data } = body;
+
+                console.log('time', time, 'devEui', devEui, 'data', data);
+
+                const dataDecoded = Buffer.from(data, 'base64').toString('utf8');
+                console.log('dataDecoded', dataDecoded);
+
+                const pg = require('pg');
+
+                const client = new pg.Client({
+                  user: 'tsdbadmin',
+                  host: 'lwevgo6wge.cd63s5urs1.tsdb.cloud.timescale.com',
+                  database: 'tsdb',
+                  password: 'k0z3ddzlwpym9cy3',
+                  port: 37881,
+                  ssl: true,
+                });
+
+                const sql = "INSERT INTO events (time, eui, data ) VALUES ( '" +
+                  time + 
+                  "', '" + 
+                  devEui + 
+                  "', '" + 
+                  dataDecoded + 
+                  "')";
+                console.log('sql:', sql);
+
+                return client.connect()
+                  .then(() => {
+                    return client.query(sql);
+                  })
+                  .then(res => {
+                    console.log('res:', res);
+                    return client.end();
+                  })
+                  .catch(e => {
+                    console.error(e);
+                    throw e;
+                  });
+
+              }
+
+
+              function insert_things(body){
+
+                const { received_at, end_device_ids: { dev_eui }, uplink_message : {frm_payload} } = body;
+
+                const time = received_at;
+                const data = frm_payload;
+                const devEui = dev_eui;
+                console.log('time', time, 'devEui', devEui, 'data', data);
+
+                let dataDecoded = Buffer.from(data, 'base64').toString('utf8');
+                console.log('dataDecoded', dataDecoded);
+                dataDecoded = "placeholder";
+
+                const values = {
+                  sensor_1 : 12.2,
+                  sensor_2 : 2314.23
+                }
+                const json = JSON.stringify(values);
+
+                const pg = require('pg');
+
+                const client = new pg.Client({
+                  user: 'tsdbadmin',
+                  host: 'lwevgo6wge.cd63s5urs1.tsdb.cloud.timescale.com',
+                  database: 'tsdb',
+                  password: 'k0z3ddzlwpym9cy3',
+                  port: 37881,
+                  ssl: true,
+                });
+
+                const sql = "INSERT INTO events (time, eui, data, values ) VALUES ( '" +
+                  time + 
+                  "', '" + 
+                  devEui + 
+                  "', '" + 
+                  dataDecoded + 
+                  "', '" + 
+                  json + 
+                  "')";
+                console.log('sql:', sql);
+
+                return client.connect()
+                  .then(() => {
+                    return client.query(sql);
+                  })
+                  .then(res => {
+                    console.log('res:', res);
+                    return client.end();
+                  })
+                  .catch(e => {
+                    console.error(e);
+                    throw e;
+                  });
+
+              }
+
+
+              const express = require('express');
+              const app = express();
+              app.use(express.json());
+              app.use(express.urlencoded({ extended: true }));
+
+              // Define a route for the root URL
+              app.get('/', (req, res) => {
+                  res.send('Hi from RRIV!');
+              });
+
+              app.post('/rriv-web-hook', (req, res) => {
+                console.log('body', req.body);
+                insert(req.body)
+                  .then(() => {
+                    res.send('ok');
+                  })
+                  .catch(e => {
+                    console.error(e);
+                    res.status(500).send('error');
+                  });
+              });
+
+              app.post('/rriv-web-hook-things-stack', (req, res) => {
+                console.log('body', req.body);
+                insert_things(req.body)
+                  .then(() => {
+                    res.send('ok');
+                  })
+                  .catch(e => {
+                    console.error(e);
+                    res.status(500).send('error');
+                  });
+              });
+
+              // Start the server
+              app.listen(80, () => {
+                  console.log('running...');
+              });
+            EOF
+        ports:
+        - containerPort: 80  # NGINX listens on port 80
+
+---
+# nodeport service
+apiVersion: v1
+kind: Service
+metadata:
+  name: timescale-bridge-service
+  namespace: timescale
+spec:
+  selector:
+    app: timescale-bridge
+  ports:
+    - port: 30001          # The port that the service will expose
+      targetPort: 80    # The port on the container
+      nodePort: 30001    # Optional: specify a NodePort (between 30000-32767)
+  type: NodePort
+      #  ports:
+      #    - protocol: TCP
+      #      port: 30001           # The port on which the service will be exposed
+      #      targetPort: 80      
+      #  type: ClusterIP           # Exposes the service only within the cluster (default behavior)
+

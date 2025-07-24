@@ -1,36 +1,4 @@
-# nginx
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: timescale-bridge
-  namespace: timescale
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: timescale-bridge
-  template:
-    metadata:
-      labels:
-        app: timescale-bridge
-      annotations:
-        vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/role: 'webapp'
-        vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Values.environment }}-timescale-creds'
-        vault.hashicorp.com/agent-inject-template-credentials: |
-          {{`{{- with secret "secret/data/`}}{{ .Values.environment }}{{`-timescale-creds" -}}`}}
-          export TIMESCALE_DATABASE_PASSWORD={{`{{ .Data.data.password }}`}}
-          {{`{{- end }}`}}
-    spec:
-      serviceAccountName: internal-app
-      containers:
-      - name: nginx
-        image: node
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            echo "Starting the application..."
+ echo "Starting the application..."
             npm install -g express
             npm install -g pg
             cd `npm root -g`
@@ -206,28 +174,4 @@ spec:
               app.listen(80, () => {
                   console.log('running...');
               });
-            EOF
-        ports:
-        - containerPort: 80  # NGINX listens on port 80
-
----
-# nodeport service
-apiVersion: v1
-kind: Service
-metadata:
-  name: timescale-bridge-service
-  namespace: timescale
-spec:
-  selector:
-    app: timescale-bridge
-  ports:
-    - port: 30001          # The port that the service will expose
-      targetPort: 80    # The port on the container
-      nodePort: 30001    # Optional: specify a NodePort (between 30000-32767)
-  type: NodePort
-      #  ports:
-      #    - protocol: TCP
-      #      port: 30001           # The port on which the service will be exposed
-      #      targetPort: 80      
-      #  type: ClusterIP           # Exposes the service only within the cluster (default behavior)
-
+EOF

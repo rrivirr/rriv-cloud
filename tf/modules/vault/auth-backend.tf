@@ -5,7 +5,7 @@ resource "vault_auth_backend" "kubernetes" {
   description = "Kubernetes auth backend for Vault cluster (for terraform operations)"
 }
 
-resource "vault_kubernetes_auth_backend_config" "config" {
+resource "vault_kubernetes_auth_backend_config" "vault_config" {
   backend = vault_auth_backend.kubernetes.path
 
   kubernetes_host = "https://kubernetes.default.svc"
@@ -68,6 +68,17 @@ resource "vault_kubernetes_auth_backend_role" "keycloak" {
   bound_service_account_namespaces = ["default"]
 
   token_policies = [vault_policy.keycloak_policy.name]
+  token_ttl      = 3600
+}
+
+# Role for External Secrets Operator
+resource "vault_kubernetes_auth_backend_role" "cert_manager_external_secrets" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "cert-manager-external-secrets"
+  bound_service_account_names      = ["eso-sa"]
+  bound_service_account_namespaces = ["cert-manager"]
+
+  token_policies = [vault_policy.cert_manager_external_secrets_policy.name]
   token_ttl      = 3600
 }
 

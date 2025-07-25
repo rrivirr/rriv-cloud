@@ -75,5 +75,10 @@ variable "rriv_kubernetes_ca_cert" {
 variable "postgresql_ca_cert" {
   description = "PostgreSQL CA certificate for SSL connections"
   type        = string
+}
+
+variable "do_dns_api_key" {
+  description = "DigitalOcean API key for External Secrets Operator to manage DNS records"
+  type        = string
   sensitive   = true
 }

@@ -36,6 +36,12 @@ output "vault_kat_password" {
   description = "Password for the kat user in Vault"
 }
 
+output "vault_zaven_password" {
+  value       = module.dev_vault_sfo2.zaven_password
+  sensitive   = true
+  description = "Password for the zaven user in Vault"
+}
+
 output "vault_auth_ca_cert" {
   value       = module.dev_k8s_sfo2_rriv_cluster_secrets.vault_auth_ca_cert
   sensitive   = true

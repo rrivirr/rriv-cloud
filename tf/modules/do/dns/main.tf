@@ -9,22 +9,34 @@ data "digitalocean_loadbalancer" "rriv_app" {
 }
 
 # Create a new domain
-resource "digitalocean_domain" "vault" {
-  name       = "${local.vault_subdomain}.${var.domain}"
-  ip_address = data.digitalocean_loadbalancer.vault.ip
+resource "digitalocean_record" "vault" {
+  domain = var.domain
+  type   = "A"
+  name   = local.vault_subdomain
+  value  = data.digitalocean_loadbalancer.vault.ip
+  ttl   = 3600
 }
 
-resource "digitalocean_domain" "chirpstack" {
-  name       = "${local.chirpstack_subdomain}.${var.domain}"
-  ip_address = data.digitalocean_loadbalancer.rriv_app.ip
+resource "digitalocean_record" "chirpstack" {
+  domain = var.domain
+  type   = "A"
+  name   = local.chirpstack_subdomain
+  value  = data.digitalocean_loadbalancer.rriv_app.ip
+  ttl   = 3600
 }
 
-resource "digitalocean_domain" "chirpstack_console" {
-  name       = "${local.chirpstack_console_subdomain}.${var.domain}"
-  ip_address = data.digitalocean_loadbalancer.rriv_app.ip
+resource "digitalocean_record" "chirpstack_console" {
+  domain = var.domain
+  type   = "A"
+  name   = local.chirpstack_console_subdomain
+  value  = data.digitalocean_loadbalancer.rriv_app.ip
+  ttl   = 3600
 }
 
-resource "digitalocean_domain" "keycloak" {
-  name       = "${local.keycloak_subdomain}.${var.domain}"
-  ip_address = data.digitalocean_loadbalancer.rriv_app.ip
+resource "digitalocean_record" "keycloak" {
+  domain = var.domain
+  type   = "A"
+  name   = local.keycloak_subdomain
+  value  = data.digitalocean_loadbalancer.rriv_app.ip
+  ttl   = 3600
 }

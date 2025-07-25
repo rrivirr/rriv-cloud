@@ -149,6 +149,21 @@ module "dev_k8s_sfo2_rriv_cluster_secrets" {
   ]
 }
 
+# This depends on the load balancers being created by the k8s clusters
+module "dev_do_sfo2_dns" {
+  source = "../../modules/do/dns"
+  providers = {
+    digitalocean = digitalocean
+  }
+
+  env          = local.env
+
+  depends_on = [
+    module.dev_do_sfo2_k8s_vault_cluster,
+    module.dev_do_sfo2_k8s_rriv_cluster,
+  ]
+}
+
 # Vault provider configuration module
 module "dev_vault_sfo2" {
   source = "../../modules/vault"
@@ -168,7 +183,8 @@ module "dev_vault_sfo2" {
   keycloak_admin_username    = module.dev_aws_us-west-1_keycloak_bootstrap_creds.admin_username
   keycloak_admin_password    = module.dev_aws_us-west-1_keycloak_bootstrap_creds.admin_password
   postgresql_ca_cert         = module.dev_do_sfo2_postgresdb.postgresql_ca_cert
-  rriv_kubernetes_host = module.dev_do_sfo2_k8s_rriv_cluster.cluster_hostname
+  rriv_kubernetes_host       = module.dev_do_sfo2_k8s_rriv_cluster.cluster_hostname
+  do_dns_api_key             = var.do_token_rriv_cert_manager
 
   depends_on = [
     module.dev_k8s_sfo2_rriv_cluster_secrets,

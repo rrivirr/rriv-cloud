@@ -54,3 +54,16 @@ path "identity/oidc/provider/rriv-internal/authorize" {
 }
 EOT
 }
+
+resource "vault_policy" "cert_manager_external_secrets_policy" {
+  name = "cert-manager-external-secrets"
+  policy = <<EOT
+# Allow External Secrets Operator to read secrets from the KV store
+path "secret/data/${var.env}-digitalocean-dns-api-key" {
+  capabilities = ["read"]
+}
+path "secret/metadata/${var.env}-digitalocean-dns-api-key" {
+  capabilities = ["read"]
+}
+EOT
+}

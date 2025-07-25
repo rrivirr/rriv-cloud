@@ -153,6 +153,7 @@ module "staging_vault_sfo2" {
   keycloak_admin_password    = module.staging_aws_us-west-1_keycloak_bootstrap_creds.admin_password
   postgresql_ca_cert         = module.staging_do_sfo2_postgresdb.postgresql_ca_cert
   rriv_kubernetes_host       = module.staging_do_sfo2_k8s_rriv_cluster.cluster_hostname
+  do_dns_api_key             = var.do_token_rriv_cert_manager
 
   depends_on = [
     module.staging_k8s_sfo2_rriv_cluster_secrets,

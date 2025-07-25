@@ -26,21 +26,20 @@ data:
   000-init-user.sh: |
     #!/bin/bash
     set -e
-    echo "Creating chirpstack user and database..."
+    echo "Updating chirpstack database user..."
     
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname="postgres" <<-EOSQL
-        CREATE ROLE chirpstack WITH LOGIN PASSWORD 'chirpstack';
         CREATE DATABASE chirpstack WITH OWNER chirpstack;
         GRANT ALL PRIVILEGES ON DATABASE chirpstack TO chirpstack;
     EOSQL
     
-    echo "Granting schema permissions..."
-    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname="chirpstack" <<-EOSQL
-        GRANT CREATE, USAGE ON SCHEMA public TO chirpstack;
-        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO chirpstack;
-        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO chirpstack;
-        ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO chirpstack;
-        ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO chirpstack;
-    EOSQL
-    
-    echo "chirpstack user and database created successfully with proper permissions"
+    # echo "Granting schema permissions..."
+    # psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname="chirpstack" <<-EOSQL
+    #     GRANT CREATE, USAGE ON SCHEMA public TO chirpstack;
+    #     GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO chirpstack;
+    #     GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO chirpstack;
+    #     ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO chirpstack;
+    #     ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO chirpstack;
+    # EOSQL
+
+    echo "chirpstack user successfully updated with proper permissions"

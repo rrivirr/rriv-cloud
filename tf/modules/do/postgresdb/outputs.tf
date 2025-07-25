@@ -5,7 +5,7 @@ output "rriv_app_connection_string" {
 }
 
 output "keycloak_db_username" {
-  value     = "keycloak-${var.env}"
+  value     = "keycloak"
   description = "Username for the keycloak database"
 }
 

@@ -21,6 +21,15 @@ resource "vault_kv_secret_v2" "keycloak_creds" {
   })
 }
 
+resource "vault_kv_secret_v2" "digitalocean_dns_api_key" {
+  mount = vault_mount.app_secrets.path
+  name  = "${var.env}-digitalocean-dns-api-key"
+
+  data_json = jsonencode({
+    api-token = var.do_dns_api_key
+  })
+}
+
 resource "vault_kv_secret_v2" "chirpstack_db_creds" {
   mount                      = vault_mount.app_secrets.path
   name                       = "${var.env}-chirpstack-db-creds"

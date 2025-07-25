@@ -1,65 +1,9 @@
-# nginx
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: timescale-bridge
-  namespace: default
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: timescale-bridge
-  template:
-    metadata:
-      labels:
-        app: timescale-bridge
-      # annotations:
-      #   vault.hashicorp.com/agent-inject: 'true'
-      #   vault.hashicorp.com/role: 'webapp'
-      #   vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
-      #   vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/dev-timescale-creds'
-      #   vault.hashicorp.com/agent-inject-template-credentials: |
-      #     {{- with secret "secret/data/dev-timescale-creds" }}
-      #     export TIMESCALE_DATABASE_PASSWORD={{ .Data.data.password }}
-      #     {{- end }}
-    spec:
-      # serviceAccountName: internal-app
-      containers:
-      - name: nginx
-        image: node
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            echo "Starting the application..."
+echo "Starting the application..."
             npm install -g express
             npm install -g pg
             cd `npm root -g`
             pwd
             node <<EOF
-
-              /*
-              function decode_naive(data){
-                let dataDecoded = Buffer.from(data, 'base64')
-                console.log('dataDecoded', dataDecoded);
-
-                let values = {};
-
-                // decode from naive codec
-                const timestamp = dataDecoded.readBigUInt64BE(0);
-                values['timestamp'] = timestamp
-                console.log(timestamp);
-                let j = 1;
-                for( i = 8; i < 20; i = i + 4) {
-                  const value = dataDecoded.readInt32BE(i) / 100;
-                  values['value_'+j] = value;
-                  j = j + 1;
-                }
-                
-                const json = JSON.stringify(values);
-                return json;  
-              }
-                              */
-
 
               function insert(body){
 
@@ -76,7 +20,7 @@ spec:
                   user: 'tsdbadmin',
                   host: 'lwevgo6wge.cd63s5urs1.tsdb.cloud.timescale.com',
                   database: 'tsdb',
-                  password: process.env.TIMESCALE_DATABASE_PASSWORD,
+                  password: 'k0z3ddzlwpym9cy3',
                   port: 37881,
                   ssl: true,
                 });
@@ -115,32 +59,14 @@ spec:
                 const devEui = dev_eui;
                 console.log('time', time, 'devEui', devEui, 'data', data);
 
-                let dataDecoded = Buffer.from(data, 'base64')
+                let dataDecoded = Buffer.from(data, 'base64').toString('utf8');
                 console.log('dataDecoded', dataDecoded);
+                dataDecoded = "placeholder";
 
-                let values = {};
-
-                // decode from naive codec
-                const timestamp = dataDecoded.readBigUInt64BE(0);
-
-                class BigIntWrapper {
-                  constructor(value) {
-                    this.value = value;
-                  }
-                  toJSON() {
-                    return this.value.toString() + 'n';
-                  }
+                const values = {
+                  sensor_1 : 12.2,
+                  sensor_2 : 2314.23
                 }
-
-                values['timestamp'] = new BigIntWrapper(timestamp);
-                console.log(timestamp);
-                let j = 1;
-                for( i = 8; i < 20; i = i + 4) {
-                  const value = dataDecoded.readInt32BE(i) / 100;
-                  values['value_'+j] = value;
-                  j = j + 1;
-                }
-                
                 const json = JSON.stringify(values);
 
                 const pg = require('pg');
@@ -159,7 +85,7 @@ spec:
                   "', '" + 
                   devEui + 
                   "', '" + 
-                  data + 
+                  dataDecoded + 
                   "', '" + 
                   json + 
                   "')";
@@ -219,28 +145,4 @@ spec:
               app.listen(80, () => {
                   console.log('running...');
               });
-            EOF
-        ports:
-        - containerPort: 80  # NGINX listens on port 80
-
----
-# nodeport service
-apiVersion: v1
-kind: Service
-metadata:
-  name: timescale-bridge-service
-  namespace: default
-spec:
-  selector:
-    app: timescale-bridge
-  ports:
-    - port: 30001          # The port that the service will expose
-      targetPort: 80    # The port on the container
-      nodePort: 30001    # Optional: specify a NodePort (between 30000-32767)
-  type: NodePort
-      #  ports:
-      #    - protocol: TCP
-      #      port: 30001           # The port on which the service will be exposed
-      #      targetPort: 80      
-      #  type: ClusterIP           # Exposes the service only within the cluster (default behavior)
-
+EOF

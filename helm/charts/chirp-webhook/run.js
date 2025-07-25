@@ -164,6 +164,6 @@ function decode_naive(data){
   });
 
   // Start the server
-  app.listen(80, () => {
+  app.listen(3000, () => {
       console.log('running...');
   });

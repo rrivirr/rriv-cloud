@@ -18,7 +18,7 @@ releases:
       - name: crds.enabled
         value: true
 
-  - name: external-secrets
+  - name: vault-external-secrets
     namespace: external-secrets
     chart: external-secrets/external-secrets
     version: 0.17.0
@@ -38,7 +38,7 @@ releases:
       - ../charts/vault/values-{{ .Environment.Name }}.yaml
     needs:
       - cert-manager/cert-manager
-      - external-secrets/external-secrets
+      - external-secrets/vault-external-secrets
 
   - name: vault-secrets-operator
     namespace: vault-secrets-operator

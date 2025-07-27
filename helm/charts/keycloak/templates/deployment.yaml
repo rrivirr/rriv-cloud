@@ -21,7 +21,10 @@ spec:
         vault.hashicorp.com/role: 'keycloak'
         vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
         vault.hashicorp.com/audience: "vault"
+        vault.hashicorp.com/log-level: "info"
         vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Values.global.environment }}-keycloak-creds'
+        vault.hashicorp.com/agent-inject-file-credentials.txt: 'credentials.txt'
+        vault.hashicorp.com/agent-pre-populate-only: 'true'
         # escape vault template syntax for Helm
         vault.hashicorp.com/agent-inject-template-credentials.txt: |
           {{`{{- with secret "secret/data/`}}{{ .Values.global.environment }}{{`-keycloak-creds" -}}`}}
@@ -33,6 +36,7 @@ spec:
           export KC_DB_USERNAME="{{`{{ .Data.data.db_username }}`}}"
           export KC_DB_PASSWORD="{{`{{ .Data.data.db_password }}`}}"
           {{`{{- end }}`}}
+
     spec:
       serviceAccountName: keycloak-sa
       containers:
@@ -41,10 +45,17 @@ spec:
           command: ["/bin/bash", "-c"]
           args: 
             - |
+              echo "Waiting for Vault secrets to be injected..."
+              while [ ! -f /vault/secrets/credentials.txt ]; do
+                echo "Waiting for /vault/secrets/credentials.txt to be created..."
+                sleep 2
+              done
+              echo "Credentials file found, sourcing..."
               source /vault/secrets/credentials.txt
               export KC_DB_URL="jdbc:postgresql://${KC_DB_URL_HOST}:${KC_DB_URL_PORT}/${KC_DB_URL_DATABASE}?sslmode=require"
               export KC_DB_USERNAME="${KC_DB_USERNAME}"
               export KC_DB_PASSWORD="${KC_DB_PASSWORD}"
+              echo "Starting Keycloak..."
               exec /opt/keycloak/bin/kc.sh {{ .Values.keycloak.extraArgs | join " " }}
           resources:
             requests:
@@ -68,7 +79,27 @@ spec:
               containerPort: 8080
             - name: https
               containerPort: 8443
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 40
           readinessProbe:
             httpGet:
               path: /health/ready
               port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3

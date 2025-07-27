@@ -11,8 +11,8 @@ resource "kubernetes_secret" "vault_aws_access_key" {
   }
 
   data = {
-    AWS_ACCESS_KEY_ID     = var.aws_access_key_id
-    AWS_SECRET_ACCESS_KEY = var.aws_secret_access_key
+    AWS_ACCESS_KEY_ID     = local.vault_iam_user_access_key_id
+    AWS_SECRET_ACCESS_KEY = local.vault_iam_user_secret_access_key
   }
 
   type = "Opaque"
@@ -25,7 +25,7 @@ resource "kubernetes_secret" "vault_aws_kms_key" {
   }
 
   data = {
-    KMS_KEY_ID = var.vault_kms_key_id
+    KMS_KEY_ID = local.vault_kms_key_id
   }
 
   type = "Opaque"
@@ -60,10 +60,3 @@ resource "local_file" "letsencrypt_ca_cert" {
   filename = "${path.module}/static/letsencrypt-ca.crt"
 }
 
-
-# data "kubernetes_secret" "vault_auth_token_data" {
-#   metadata {
-#     name      = "vault-auth-token"
-#     namespace = "vault"
-#   }
-# }

@@ -1,17 +1,17 @@
 # Vault cluster kubernetes backend
-resource "vault_auth_backend" "kubernetes" {
-  type = "kubernetes"
-  path = "kubernetes"
-  description = "Kubernetes auth backend for Vault cluster (for terraform operations)"
-}
+# resource "vault_auth_backend" "kubernetes" {
+#   type = "kubernetes"
+#   path = "kubernetes"
+#   description = "Kubernetes auth backend for Vault cluster (for terraform operations)"
+# }
 
-resource "vault_kubernetes_auth_backend_config" "vault_config" {
-  backend = vault_auth_backend.kubernetes.path
+# resource "vault_kubernetes_auth_backend_config" "vault_config" {
+#   backend = vault_auth_backend.kubernetes.path
 
-  kubernetes_host = "https://kubernetes.default.svc"
-  kubernetes_ca_cert = var.rriv_kubernetes_ca_cert
-  token_reviewer_jwt = var.rriv_token_reviewer_jwt
-}
+#   kubernetes_host = "https://kubernetes.default.svc"
+#   kubernetes_ca_cert = var.rriv_kubernetes_ca_cert
+#   token_reviewer_jwt = var.rriv_token_reviewer_jwt
+# }
 
 # Separate auth backend for RRIV cluster
 resource "vault_auth_backend" "kubernetes_rriv" {
@@ -29,16 +29,16 @@ resource "vault_kubernetes_auth_backend_config" "rriv_config" {
 }
 
 # Role for Terraform to modify Vault resources
-resource "vault_kubernetes_auth_backend_role" "terraform" {
-  backend       = vault_auth_backend.kubernetes.path
-  role_name     = "terraform"
-  bound_service_account_names      = [var.vault_auth_service_account_name]
-  bound_service_account_namespaces = ["vault"]
-  token_ttl     = 3600
-  token_policies = [
-    vault_policy.terraform_admin_policy.name
-  ]
-}
+# resource "vault_kubernetes_auth_backend_role" "terraform" {
+#   backend       = vault_auth_backend.kubernetes.path
+#   role_name     = "terraform"
+#   bound_service_account_names      = [var.vault_auth_service_account_name]
+#   bound_service_account_namespaces = ["vault"]
+#   token_ttl     = 3600
+#   token_policies = [
+#     vault_policy.terraform_admin_policy.name
+#   ]
+# }
 
 resource "vault_kubernetes_auth_backend_role" "terraform_rriv" {
   backend       = vault_auth_backend.kubernetes_rriv.path

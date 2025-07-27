@@ -13,8 +13,7 @@ repositories:
     url: https://getambassador.io
 
 releases:
-  # - name: rriv-external-secrets
-  - name: external-secrets
+  - name: rriv-external-secrets
     namespace: external-secrets
     chart: external-secrets/external-secrets
     version: 0.17.0
@@ -42,23 +41,24 @@ releases:
     version: 0.1.0
     values:
       - ../charts/external-vault-connect/values-{{ .Environment.Name }}.yaml
+    needs:
+      - external-secrets/rriv-external-secrets
 
   - name: rriv-ingress-nginx
     namespace: ingress-nginx
     chart: ingress-nginx/ingress-nginx
     version: 4.12.2
     values:
-      - ../charts/network/values-{{ .Environment.Name }}.yaml
+      - ../charts/rriv-network/values-{{ .Environment.Name }}.yaml
 
   - name: rriv-network
     namespace: default
-    chart: ../charts/network/
+    chart: ../charts/rriv-network/
     version: 0.1.0
     values:
-      - ../charts/network/values-{{ .Environment.Name }}.yaml
+      - ../charts/rriv-network/values-{{ .Environment.Name }}.yaml
     needs:
       - ingress-nginx/rriv-ingress-nginx
-      # - external-secrets/rriv-external-secrets
 
   - name: rriv-keycloak
     namespace: default

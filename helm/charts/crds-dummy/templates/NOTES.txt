@@ -1,2 +1,0 @@
-# This is a dummy chart - no actual resources are deployed
-# The real work is done by the prepare hook

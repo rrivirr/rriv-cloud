@@ -13,3 +13,21 @@ export KUBECONFIG="$K8S_DIRECTORY/vault-dev.yaml"\
 # They should match the values for access_key and secret_key in tf/environments/../backend.hcl
 export SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
 export SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
+
+# Terraform secrets should ***NOT*** be stored in this repo!!!
+# AI agents like Copilot can read anything you open in your editor.
+# Put them in a folder outside of this repo, e.g. ../rriv-cloud-secrets
+# Add this line to alias the terraform command so it can use the secrets:
+tf() {
+  terraform "$@" -var-file="${RRIV_PROJECT_PATH}/../rriv-cloud-secrets/secrets-${ENV}.tfvars"
+}
+# Directory structure:
+#
+# rriv-cloud/         # this repo
+# rriv-cloud-secrets/ # edit these files in a basic text editor
+# ├── secrets-dev.tfvars
+# ├── secrets-staging.tfvars
+# └── secrets-prod.tfvars
+#
+# Example usage:
+# export ENV=dev && tf plan

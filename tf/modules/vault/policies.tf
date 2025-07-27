@@ -9,7 +9,6 @@ path "sys/auth/*" { capabilities = ["create", "read", "update", "delete", "list"
 # Mount info (required for Terraform to manage auth backends)
 path "sys/mounts" { capabilities = ["read"] }
 path "sys/mounts/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/kubernetes/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/kubernetes-rriv/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/userpass/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/token/create" { capabilities = ["create", "update", "sudo"] }

@@ -121,13 +121,11 @@ module "dev_k8s_sfo2_vault_cluster_secrets" {
   source = "../../modules/k8s/vault-cluster-secrets"
   providers = {
     kubernetes = kubernetes.dev-sfo2-k8s-vault
+    aws        = aws.dev-us-west-1
   }
 
-  env                  = local.env
-  aws_access_key_id     = module.dev_aws_us-west-1_vault.vault_iam_user_access_key_id
-  aws_secret_access_key = module.dev_aws_us-west-1_vault.vault_iam_user_secret_access_key
-  vault_kms_key_id      = module.dev_aws_us-west-1_vault.vault_kms_key_id
-  do_token              = var.do_token
+  env                                = local.env
+  do_token                           = var.do_token
 
   depends_on = [
     module.dev_aws_us-west-1_vault,

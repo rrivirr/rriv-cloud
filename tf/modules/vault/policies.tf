@@ -33,6 +33,9 @@ resource "vault_policy" "webapp_policy" {
 path "secret/data/${var.env}-chirpstack-db-creds" {
   capabilities = ["read"]
 }
+path "secret/data/${var.env}-timescale-creds" {
+  capabilities = ["read"]
+}
 EOT
 }
 

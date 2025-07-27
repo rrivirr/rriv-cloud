@@ -41,3 +41,5 @@ resource "vault_kv_secret_v2" "chirpstack_db_creds" {
     #pg_integration_connection_string = var.chirpstack_integration_connection_string
   })
 }
+
+# TODO: add timescale creds as a resource

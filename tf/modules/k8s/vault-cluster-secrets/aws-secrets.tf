@@ -1,5 +1,5 @@
 data "aws_secretsmanager_secret" "vault_iam_user_access_keys" {
-  name = "rriv-${var.env}-vault-user-access-keys"
+  name = var.vault_iam_user_access_key_secret_name
 }
 
 data "aws_secretsmanager_secret_version" "vault_iam_user_access_keys" {

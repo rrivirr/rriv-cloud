@@ -34,5 +34,4 @@ variable "node_count" {
 variable "vpc_id" {
   description = "VPC ID for the Kubernetes cluster"
   type        = string
-  default     = null
 }

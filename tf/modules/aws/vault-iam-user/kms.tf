@@ -22,7 +22,7 @@ resource "aws_kms_key" "vault" {
 }
 
 resource "aws_kms_alias" "vault" {
-  name          = "alias/rriv-${var.env}-vault"
+  name          = var.kms_key_alias
   target_key_id = aws_kms_key.vault.id
 }
 

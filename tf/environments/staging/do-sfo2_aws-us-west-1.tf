@@ -39,6 +39,8 @@ module "staging_aws_us-west-1_vault" {
   }
 
   env = local.env
+  iam_user_access_key_secret_name = var.vault_iam_user_access_key_secret_name
+  kms_key_alias = var.vault_kms_key_alias
 }
 
 ### Modules that depend each other are below
@@ -69,6 +71,7 @@ module "staging_do_sfo2_k8s_vault_cluster" {
   service                    = "vault"
   do_region                  = local.do_region
   node_count                 = local.vault_cluster_node_count
+  vpc_id                     = module.staging_do_sfo2_vpc.vpc_id
 
   depends_on = [
     module.staging_do_sfo2_postgresdb,
@@ -88,14 +91,26 @@ module "staging_do_sfo2_k8s_rriv_cluster" {
   do_region    = local.do_region
   node_count   = local.rriv_cluster_node_count
   node_size    = "s-2vcpu-4gb"
+  vpc_id       = module.staging_do_sfo2_vpc.vpc_id
+  
   depends_on = [
     module.staging_do_sfo2_k8s_vault_cluster
   ]
 }
 
+module "staging_helm_setup" {
+  source = "../../modules/helm"
+
+  env = local.env
+
+  depends_on = [
+    module.staging_do_sfo2_k8s_vault_cluster,
+    module.staging_do_sfo2_k8s_rriv_cluster
+  ]
+}
+
 #####################################################
 ## THIS IS THE POINT AT WHICH HELM MUST BE APPLIED ##
-## You must first run the 00-helm-install.sh script ##
 #####################################################
 
 # K8s secrets in the Vault cluster
@@ -103,17 +118,18 @@ module "staging_k8s_sfo2_vault_cluster_secrets" {
   source = "../../modules/k8s/vault-cluster-secrets"
   providers = {
     kubernetes = kubernetes.staging-sfo2-k8s-vault
+    aws        = aws.staging-us-west-1
   }
 
   env                  = local.env
   do_token             = var.do_token
+  vault_iam_user_access_key_secret_name = var.vault_iam_user_access_key_secret_name
+  vault_kms_key_alias = var.vault_kms_key_alias
 
   depends_on = [
-    module.staging_aws_us-west-1_vault,
-    module.staging_do_sfo2_k8s_vault_cluster,
+    module.staging_helm_setup,
   ]
 }
-
 
 
 # # k8s secrets for the rriv app
@@ -140,7 +156,8 @@ module "staging_vault_sfo2" {
   env                  = local.env
   rriv_token_reviewer_jwt    = module.staging_k8s_sfo2_rriv_cluster_secrets.vault_auth_token_data
   rriv_kubernetes_ca_cert    = module.staging_k8s_sfo2_rriv_cluster_secrets.vault_auth_ca_cert
-  rriv_app_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_connection_string
+  rriv_app_pool_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_pool_connection_string
+  rriv_app_direct_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_direct_connection_string
   keycloak_db_host           = module.staging_do_sfo2_postgresdb.keycloak_db_host
   keycloak_db_port           = module.staging_do_sfo2_postgresdb.keycloak_db_port
   keycloak_db_name           = module.staging_do_sfo2_postgresdb.keycloak_db_name

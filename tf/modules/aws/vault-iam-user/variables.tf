@@ -3,7 +3,12 @@ variable "env" {
   description = "Environment name"
 }
 
-# variable "vault_tls_cert_arn" {
-#   description = "ARN of the Vault TLS certificate"
-#   type        = string
-# }
+variable "iam_user_access_key_secret_name" {
+  type        = string
+  description = "The name of the AWS Secrets Manager secret that stores the Vault IAM user access keys"
+}
+
+variable "kms_key_alias" {
+  type        = string
+  description = "The alias of the KMS key used for Vault"
+}

@@ -228,11 +228,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: timescale-bridge-service
+  name: timescale-bridge-service-dev
   namespace: default
 spec:
   selector:
-    app: timescale-bridge
+    app: timescale-bridge-dev
   ports:
     - port: 30001          # The port that the service will expose
       targetPort: 80    # The port on the container

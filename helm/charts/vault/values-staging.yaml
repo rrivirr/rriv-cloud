@@ -104,7 +104,8 @@ vault:
     annotations:
       service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
       service.beta.kubernetes.io/do-loadbalancer-tls-ports: "8200"
-  
+      service.beta.kubernetes.io/do-loadbalancer-name: "vault-staging.rriv.org"
+
   ui:
     enabled: true
     serviceType: LoadBalancer

@@ -9,3 +9,7 @@ keycloak:
 
 webfingerDeployment:
   image: kleipper/rriv-webfinger-app:latest # TODO: put this in a rriv docker account
+
+service:
+  annotations:
+    loadbalancerName: "auth-dev.rriv.org"

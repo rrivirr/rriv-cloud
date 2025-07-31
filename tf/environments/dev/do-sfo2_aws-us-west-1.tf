@@ -160,21 +160,6 @@ module "dev_k8s_sfo2_rriv_cluster_secrets" {
   ]
 }
 
-# This depends on the load balancers being created by the k8s clusters
-module "dev_do_sfo2_dns" {
-  source = "../../modules/do/dns"
-  providers = {
-    digitalocean = digitalocean
-  }
-
-  env          = local.env
-
-  depends_on = [
-    module.dev_do_sfo2_k8s_vault_cluster,
-    module.dev_do_sfo2_k8s_rriv_cluster,
-  ]
-}
-
 # Vault provider configuration module
 module "dev_vault_sfo2" {
   source = "../../modules/vault"

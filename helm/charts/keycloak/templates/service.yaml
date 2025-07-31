@@ -6,9 +6,8 @@ metadata:
     app: keycloak
   annotations:
     # service.beta.kubernetes.io/do-loadbalancer-certificate-id: "rriv-org-cert"
-    # service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
-    # service.beta.kubernetes.io/do-loadbalancer-hostname: "auth.rriv.org"
-    # service.beta.kubernetes.io/do-loadbalancer-name: "auth.rriv.org"
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+    service.beta.kubernetes.io/do-loadbalancer-name: "{{ .Values.service.annotations.loadbalancerName }}"
 spec:
   ports:
     - name: http

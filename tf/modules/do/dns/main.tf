@@ -1,11 +1,11 @@
 # Note: LBs must be manually renamed in the DO UI to match this name
 data "digitalocean_loadbalancer" "vault" {
-  name = "vault-${var.env}-lb"
+  name = "${local.vault_subdomain}.${var.domain}"
 }
 
 # Note: LBs must be manually renamed in the DO UI to match this name
 data "digitalocean_loadbalancer" "rriv_app" {
-  name = "rriv-app-${var.env}-lb"
+  name = "${local.app_subdomain}.${var.domain}"
 }
 
 # Create a new domain

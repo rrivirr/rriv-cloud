@@ -14,5 +14,5 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    io.kompose.service: chirpstack-gateway-bridge
+    app: chirpstack-gateway-bridge
   name: chirpstack-gateway-bridge-cm0

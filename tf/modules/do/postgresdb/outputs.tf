@@ -1,7 +1,13 @@
-output "rriv_app_connection_string" {
+output "rriv_app_pool_connection_string" {
   value     = digitalocean_database_connection_pool.rriv_app_pool.private_uri
   sensitive = true
-  description = "Connection string for the chirpstack database"
+  description = "DB connection string for the chirpstack application pool"
+}
+
+output "rriv_app_direct_connection_string" {
+  value     = digitalocean_database_cluster.rriv.private_uri
+  sensitive = true
+  description = "Direct connection string for the chirpstack database"
 }
 
 output "keycloak_db_username" {

@@ -16,7 +16,7 @@ certificate:
 
 clusterIssuer:
   server: https://acme-v02.api.letsencrypt.org/directory
-  email: prod@rriv.org
+  email: admin@rriv.org
   privateKeySecretRef:
     name: letsencrypt-account-key
   digitalocean:
@@ -32,14 +32,14 @@ externalSecret:
     namespace: cert-manager
     kind: SecretStore
     vault:
-      server: http://vault.rriv.org:8200
+      server: https://vault.rriv.org:8200
       path: "secret"
       version: v2
       
   data:
     secretKey: api-token
     remoteRef:
-      key: secret/prod-digitalocean-api-key
+      key: secret/prod-digitalocean-dns-api-key
       property: api-token
 
 ingress:

@@ -34,11 +34,10 @@ resource "vault_kv_secret_v2" "chirpstack_db_creds" {
   mount                      = vault_mount.app_secrets.path
   name                       = "${var.env}-chirpstack-db-creds"
 
-  # pg_integration_connection_string is used for the chirpstack_integration database
   data_json = jsonencode({
-    pg_chirpstack_connection_string = var.rriv_app_connection_string,
+    pg_chirpstack_pool_connection_string = var.rriv_app_pool_connection_string,
+    pg_chirpstack_direct_connection_string = var.rriv_app_direct_connection_string, # Used for setup
     postgresql_ca_cert = var.postgresql_ca_cert,
-    #pg_integration_connection_string = var.chirpstack_integration_connection_string
   })
 }
 

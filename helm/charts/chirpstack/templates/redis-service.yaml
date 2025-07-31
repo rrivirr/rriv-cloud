@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: redis
   labels:
-    io.kompose.service: redis
+    app: redis
 spec:
   selector:
-    io.kompose.service: redis
+    app: redis
   ports:
     - protocol: TCP
       port: 6379           # The port on which the service will be exposed

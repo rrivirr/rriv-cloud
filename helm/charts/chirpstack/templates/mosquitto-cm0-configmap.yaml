@@ -6,5 +6,5 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    io.kompose.service: mosquitto
+    app: mosquitto
   name: mosquitto-cm0

@@ -32,14 +32,14 @@ externalSecret:
     namespace: cert-manager
     kind: SecretStore
     vault:
-      server: http://vault-staging.rriv.org:8200
+      server: https://vault-staging.rriv.org:8200
       path: "secret"
       version: v2
       
   data:
     secretKey: api-token
     remoteRef:
-      key: secret/staging-digitalocean-api-key
+      key: secret/staging-digitalocean-dns-api-key
       property: api-token
 
 ingress:
@@ -57,3 +57,7 @@ ingress-nginx:
       enabled: true
     service:
       type: LoadBalancer
+
+ingressShim:
+  defaultIssuerName: letsencrypt 
+  defaultIssuerKind: ClusterIssuer

@@ -15,8 +15,13 @@ variable "keycloak_auth_service_account_name" {
   default     = "keycloak-sa"
 }
 
-variable "rriv_app_connection_string" {
-  description = "Connection string for the ChirpStack application database"
+variable "rriv_app_pool_connection_string" {
+  description = "Connection string for the ChirpStack application database pool"
+  type        = string
+}
+
+variable "rriv_app_direct_connection_string" {
+  description = "Direct connection string for the ChirpStack application database used for initial migrations"
   type        = string
 }
 

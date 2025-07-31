@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: chirpstack-claim1
+    app: chirpstack-claim1
   name: chirpstack-claim1
 spec:
   accessModes:

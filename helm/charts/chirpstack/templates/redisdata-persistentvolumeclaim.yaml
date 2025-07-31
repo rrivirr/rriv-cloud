@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    io.kompose.service: redisdata
+    app: redisdata
   name: redisdata
 spec:
   accessModes:

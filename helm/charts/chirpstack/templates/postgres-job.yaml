@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: chirpstack-db-update
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      serviceAccountName: internal-app
+      restartPolicy: OnFailure
+      volumes:
+        - name: vault-secrets
+          emptyDir: {}
+        - name: vault-agent-config
+          configMap:
+            name: vault-agent-config
+      initContainers:
+        - name: vault-agent-init
+          image: hashicorp/vault:1.19.0
+          command: ["vault", "agent", "-config=/etc/vault/agent.hcl"]
+          volumeMounts:
+            - name: vault-secrets
+              mountPath: /vault/secrets
+            - name: vault-agent-config
+              mountPath: /etc/vault
+      containers:
+        - name: psql
+          image: postgres:15
+          command: ["bash", "-c"]
+          args:
+            - |
+              source /vault/secrets/credentials
+              echo "Running ALTER DATABASE..."
+              echo "Connecting with: POSTGRES_DIRECT_CONN_STRING"
+              POSTGRES_DIRECT_CONN_STRING="${POSTGRES_DIRECT_CONN_STRING/defaultdb/chirpstack}"
+              psql "$POSTGRES_DIRECT_CONN_STRING" <<-EOSQL
+                ALTER DATABASE chirpstack OWNER TO chirpstack;
+                CREATE EXTENSION IF NOT EXISTS pg_trgm;
+                CREATE EXTENSION IF NOT EXISTS hstore;
+              EOSQL
+              echo "Assigned chirpstack user to chirpstack database successfully."
+              exit 0
+          volumeMounts:
+            - name: vault-secrets
+              mountPath: /vault/secrets
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config
+data:
+  agent.hcl: |
+    exit_after_auth = true
+
+    vault {
+      address = "https://vault-{{ .Values.environment }}.rriv.org:8200"
+    }
+
+    auto_auth {
+      method "kubernetes" {
+        mount_path = "auth/kubernetes-rriv"
+        config = {
+          role = "webapp"
+        }
+      }
+      sink "file" {
+        config = {
+          path = "/vault/secrets/.vault-token"
+        }
+      }
+    }
+
+    template {
+      source      = "/etc/vault/credentials-template.tpl"
+      destination = "/vault/secrets/credentials"
+    }
+
+  credentials-template.tpl: |
+    {{`{{- with secret "secret/data/`}}{{ .Values.environment }}{{`-chirpstack-db-creds" -}}`}}
+    export POSTGRES_DIRECT_CONN_STRING={{`{{ .Data.data.pg_chirpstack_direct_connection_string }}`}}
+    {{`{{- end }}`}}

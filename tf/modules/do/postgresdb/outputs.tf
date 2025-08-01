@@ -22,13 +22,13 @@ output "keycloak_db_password" {
 }
 
 output "keycloak_db_host" {
-  value     = digitalocean_database_connection_pool.keycloak_pool.private_host
+  value     = digitalocean_database_cluster.rriv.private_host
   sensitive = true
   description = "Host for the keycloak database"
 }
 
 output "keycloak_db_port" {
-  value     = digitalocean_database_connection_pool.keycloak_pool.port
+  value     = digitalocean_database_cluster.rriv.port
   description = "Port for the keycloak database"
 }
 

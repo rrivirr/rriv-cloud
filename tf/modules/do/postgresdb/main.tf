@@ -43,11 +43,3 @@ resource "digitalocean_database_connection_pool" "rriv_app_pool" {
   user       = "chirpstack"
 }
 
-resource "digitalocean_database_connection_pool" "keycloak_pool" {
-  cluster_id = digitalocean_database_cluster.rriv.id
-  name       = digitalocean_database_db.keycloak.name
-  mode       = "transaction"
-  size       = 10
-  db_name    = digitalocean_database_db.keycloak.name
-  user       = "keycloak"
-}

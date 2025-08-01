@@ -36,7 +36,7 @@ resource "random_password" "kat_password" {
 
 resource "vault_identity_entity" "zaven" {
   name      = "zaven"
-  policies  = ["users", "webapp", "oidc-provider"]
+  policies  = ["users"]
 
   lifecycle {
     ignore_changes = [policies] # optional, avoids overwriting policies managed by groups
@@ -51,7 +51,7 @@ resource "vault_generic_endpoint" "zaven_user" {
 
   data_json = jsonencode({
     password = random_password.zaven_password.result
-    policies = ["users", "webapp", "oidc-provider"]
+    policies = ["users"]
   })
 
   lifecycle {

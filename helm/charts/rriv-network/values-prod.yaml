@@ -49,6 +49,7 @@ ingress:
     vault: vault.rriv.org
     chirpstack: chirp.rriv.org
     chirpstackConsole: console.chirp.rriv.org
+    webfinger: auth.rriv.org
 
 ingress-nginx:
   controller:

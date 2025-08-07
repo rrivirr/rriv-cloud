@@ -7,7 +7,7 @@ data "aws_secretsmanager_secret_version" "vault_iam_user_access_keys" {
 }
 
 data "aws_kms_alias" "vault_kms_key" {
-  name = "alias/rriv-${var.env}-vault"
+  name = var.vault_kms_key_alias
 }
 
 locals {

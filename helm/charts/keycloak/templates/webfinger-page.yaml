@@ -18,6 +18,9 @@ spec:
           image: {{ .Values.webfingerDeployment.image }}
           ports:
             - containerPort: 8080
+          env:
+            - name: ENV
+              value: {{ .Values.global.environment | quote }}
 ---
 apiVersion: v1
 kind: Service
@@ -30,23 +33,23 @@ spec:
   ports:
     - port: 80
       targetPort: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: webfinger-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  rules:
-    - host: rriv.org
-      http:
-        paths:
-          - path: /(.well-known/webfinger)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: webfinger-app
-                port:
-                  number: 80
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: webfinger-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+# spec:
+#   rules:
+#     - host: rriv.org
+#       http:
+#         paths:
+#           - path: /(.well-known/webfinger)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: webfinger-app
+#                 port:
+#                   number: 80
 

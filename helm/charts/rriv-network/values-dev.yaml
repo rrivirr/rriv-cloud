@@ -25,22 +25,30 @@ clusterIssuer:
       key: api-token
 
 externalSecret:
-  name: dev-digitalocean-api-key
-  namespace: cert-manager
   secretStoreRef:
-    name: dev-digitalocean-secret-store
-    namespace: cert-manager
-    kind: SecretStore
+    name: cluster-secret-store
+    namespace: external-secrets
+    kind: ClusterSecretStore
     vault:
       server: https://vault-dev.rriv.org:8200
       path: "secret"
       version: v2
-      
-  data:
-    secretKey: api-token
-    remoteRef:
-      key: secret/dev-digitalocean-dns-api-key
-      property: api-token
+  doApiKey:
+    name: dev-digitalocean-api-key
+    namespace: cert-manager
+    data:
+      secretKey: api-token
+      remoteRef:
+        key: secret/dev-digitalocean-dns-api-key
+        property: api-token
+  timescaleCreds:
+    name: dev-timescale-creds
+    namespace: default
+    data:
+      secretKey: database_url
+      remoteRef:
+        key: secret/dev-timescale-creds
+        property: database_url
 
 ingress:
   secretName: rriv-org-tls
@@ -49,6 +57,8 @@ ingress:
     vault: vault-dev.rriv.org
     chirpstack: chirp-dev.rriv.org
     chirpstackConsole: console.chirp-dev.rriv.org
+    dataApi: api-dev.rriv.org
+    webfinger: auth-dev.rriv.org
 
 ingress-nginx:
   controller:

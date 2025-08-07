@@ -3,6 +3,12 @@ variable "env" {
   type        = string
 }
 
+variable "kv_secret_tags" {
+  description = "Tags for KV secrets"
+  type        = map(string)
+  default     = {}
+}
+
 variable "vault_auth_service_account_name" {
   description = "Service account name for Vault authentication"
   type        = string
@@ -86,4 +92,12 @@ variable "do_dns_api_key" {
   description = "DigitalOcean API key for External Secrets Operator to manage DNS records"
   type        = string
   sensitive   = true
+}
+
+# TODO: include this
+variable "do_registry_auth_token" {
+  description = "DigitalOcean Container Registry authentication token"
+  sensitive   = true
+  type        = object({})
+  default = {}
 }

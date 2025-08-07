@@ -2,10 +2,12 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY app.py .
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install flask
+COPY app.py .
 
 EXPOSE 8080
 
-CMD ["python", "app.py"]
+# Use Gunicorn for production
+CMD ["gunicorn", "--workers=4", "--bind=0.0.0.0:8080", "--access-logfile=-", "--error-logfile=-", "app:app"]

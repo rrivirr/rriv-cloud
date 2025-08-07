@@ -44,6 +44,7 @@ spec:
               done;
               echo "Secrets file found!";
               source /vault/secrets/credentials;
+              rm -f /vault/secrets/credentials;
               /usr/bin/chirpstack-rest-api
           ports:
             - containerPort: 8090

@@ -1,14 +1,17 @@
 keycloak:
-  # db:
-  #   host: rriv-staging-do-user-18089096-0.j.db.ondigitalocean.com
   extraArgs:
-    - start-dev
+    - start
+    - "--health-enabled=true"
+    - "--hostname=auth-staging.rriv.org"
+    - "--proxy-headers=xforwarded"
+    - "--http-enabled=true"
+    - "--hostname-strict=false"
   image:
     repository: quay.io/keycloak/keycloak
     tag: 26.0.7
 
 webfingerDeployment:
-  image: kleipper/rriv-webfinger-app:latest # TODO: put this in a rriv docker account
+  image: kleipper/rriv-webfinger-app:staging # TODO: put this in a rriv docker account
 
 service:
   annotations:

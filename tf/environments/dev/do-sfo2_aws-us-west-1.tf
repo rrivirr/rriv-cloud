@@ -35,17 +35,17 @@ module "dev_do_sfo2_postgresdb" {
   ]
 }
 
-# module "dev_do_sfo2_vpn" {
-#   source = "../../modules/do/vpn"
-#   providers = {
-#     digitalocean = digitalocean
-#   }
+module "dev_do_sfo2_vpn" {
+  source = "../../modules/do/vpn"
+  providers = {
+    digitalocean = digitalocean
+  }
 
-#   do_region         = local.do_region
-#   droplet_size      = var.vpn_droplet_size
-#   ssh_fingerprint   = var.vpn_ssh_fingerprint
-#   tailscale_authkey = var.vpn_tailscale_authkey
-# }
+  do_region         = local.do_region
+  droplet_size      = var.vpn_droplet_size
+  ssh_fingerprint   = var.vpn_ssh_fingerprint
+  tailscale_authkey = var.vpn_tailscale_authkey
+}
 
 # Vault IAM user and KMS key
 module "dev_aws_us-west-1_vault" {
@@ -69,10 +69,25 @@ module "dev_aws_us-west-1_do_api_key" {
 
   env = local.env
   do_api_key = var.do_token
+  do_github_actions_api_key = var.do_github_actions_api_key
   vault_iam_user_name = module.dev_aws_us-west-1_vault.vault_iam_user_name
 
   depends_on = [
     module.dev_aws_us-west-1_vault
+  ]
+}
+
+module "dev_aws_us-west-1_github_actions" {
+  source = "../../modules/aws/github-actions"
+  providers = {
+    aws = aws.dev-us-west-1
+  }
+
+  env = local.env
+  secret_github_actions_do_api_key_arn = module.dev_aws_us-west-1_do_api_key.secret_github_actions_do_api_key_arn
+
+  depends_on = [
+    module.dev_aws_us-west-1_do_api_key
   ]
 }
 
@@ -168,6 +183,7 @@ module "dev_vault_sfo2" {
   }
 
   env                  = local.env
+  kv_secret_tags       = local.vault_kv_secret_tags
   rriv_token_reviewer_jwt    = module.dev_k8s_sfo2_rriv_cluster_secrets.vault_auth_token_data
   rriv_kubernetes_ca_cert    = module.dev_k8s_sfo2_rriv_cluster_secrets.vault_auth_ca_cert
   rriv_app_direct_connection_string = module.dev_do_sfo2_postgresdb.rriv_app_direct_connection_string
@@ -182,9 +198,27 @@ module "dev_vault_sfo2" {
   postgresql_ca_cert         = module.dev_do_sfo2_postgresdb.postgresql_ca_cert
   rriv_kubernetes_host       = module.dev_do_sfo2_k8s_rriv_cluster.cluster_hostname
   do_dns_api_key             = var.do_token_rriv_cert_manager
+  do_registry_auth_token     = var.do_registry_auth_token
 
   depends_on = [
     module.dev_k8s_sfo2_rriv_cluster_secrets,
     module.dev_do_sfo2_postgresdb
+  ]
+}
+
+module "dev_keycloak_sfo2" {
+  source = "../../modules/keycloak"
+  providers = {
+    keycloak = keycloak.dev-sfo2-keycloak
+  }
+
+  env = local.env
+  smtp_username = module.dev_vault_sfo2.keycloak_smtp_creds["username"]
+  smtp_password = module.dev_vault_sfo2.keycloak_smtp_creds["password"]
+
+  depends_on = [
+    module.dev_vault_sfo2,
+    module.dev_aws_us-west-1_keycloak_bootstrap_creds,
+    module.dev_k8s_sfo2_vault_cluster_secrets,
   ]
 }

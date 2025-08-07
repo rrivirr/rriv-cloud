@@ -7,6 +7,8 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: {{ .Values.certificate.issuerRef.name }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -14,7 +16,7 @@ spec:
 {{ toYaml .Values.certificate.dnsNames | indent 6 }}
       secretName: {{ .Values.ingress.secretName }}
   rules:
-    - host: rriv.org
+    - host: {{ .Values.ingress.hosts.webfinger }}
       http:
         paths:
           - path: /.well-known/webfinger
@@ -24,13 +26,13 @@ spec:
                 name: webfinger-app
                 port:
                   number: 80
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: wix-redirect
-                port:
-                  number: 80
+          # - path: /
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: wix-redirect
+          #       port:
+          #         number: 80
     - host: {{ .Values.ingress.hosts.keycloak }}
       http:
         paths:
@@ -71,5 +73,15 @@ spec:
                 name: chirpstack
                 port:
                   number: 8080
+    - host: {{ .Values.ingress.hosts.dataApi }}
+      http:
+        paths:
+          - path: /data(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: data-api
+                port:
+                  number: 80
 ---
 

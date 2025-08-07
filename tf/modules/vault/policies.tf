@@ -36,6 +36,12 @@ path "secret/data/${var.env}-chirpstack-db-creds" {
 path "secret/data/${var.env}-timescale-creds" {
   capabilities = ["read"]
 }
+path "secret/data/${var.env}-rriv-api-creds" {
+  capabilities = ["read"]
+}
+path "secret/data/${var.env}-data-api-creds" {
+  capabilities = ["read"]
+}
 EOT
 }
 
@@ -57,10 +63,17 @@ path "identity/oidc/provider/rriv-internal/authorize" {
 EOT
 }
 
-resource "vault_policy" "cert_manager_external_secrets_policy" {
-  name = "cert-manager-external-secrets"
+# TODO: separate policy for each service
+resource "vault_policy" "services_external_secrets_policy" {
+  name = "services-external-secrets"
   policy = <<EOT
 # Allow External Secrets Operator to read secrets from the KV store
+path "secret/data/${var.env}-timescale-creds" {
+  capabilities = ["read"]
+}
+path "secret/metadata/${var.env}-timescale-creds" {
+  capabilities = ["read"]
+}
 path "secret/data/${var.env}-digitalocean-dns-api-key" {
   capabilities = ["read"]
 }

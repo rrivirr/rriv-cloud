@@ -3,6 +3,20 @@ variable "do_token" {
   description = "DigitalOcean API token"
 }
 
+variable "do_registry_auth_token" {
+  description = "DigitalOcean Container Registry authentication token"
+  sensitive   = true
+  type        = object({})
+  default = {}
+}
+
+variable "do_github_actions_api_key" {
+  type        = string
+  description = "DigitalOcean API key for GitHub Actions"
+  sensitive   = true
+  default     = ""
+}
+
 variable "do_token_rriv_cert_manager" {
   type        = string
   description = "DigitalOcean API token scoped for domain read/update only. Used by rriv cluster for creating cert-manager resources"
@@ -26,6 +40,18 @@ variable "aws_region" {
   default     = "us-west-1"
 }
 
+variable "vault_token" {
+  description = "Terraform admin temporary token from vault-kubernetes.sh"
+  type        = string
+}
+
+variable "keycloak_client_secret" {
+  description = "Keycloak client secret for Terraform. Get this from Keycloak admin console upon initial login"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "vpn_droplet_size" {
   description = "Droplet size for the Tailscale exit node"
   type        = string
@@ -42,7 +68,3 @@ variable "vpn_tailscale_authkey" {
   description = "Tailscale auth key for the exit node"
 }
 
-variable "vault_token" {
-  description = "Terraform admin temporary token from vault-kubernetes.sh"
-  type        = string
-}

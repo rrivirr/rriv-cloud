@@ -48,6 +48,7 @@ spec:
               done
               echo "Vault secrets injected"
               source /vault/secrets/credentials
+              rm -f /vault/secrets/credentials
               echo "starting chirpstack"
               exec /usr/bin/chirpstack --config /etc/chirpstack
           env:

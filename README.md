@@ -179,6 +179,8 @@ Keycloak is used as an identity provider throughout the project. Its purpose is 
 1. Authenticate end users who wish to use the rriv monitoring software.
 2. Act as an IDP for the VPN, which gates access to certain private backend services, (such as Vault).
 
+To use keycloak, you must first log in with the admin credentials that are given in the terraform outputs. Use these to log in and create a new Client with service accounts activated. Give the client the name "terraform" and the admin realm role under "service account roles". Put the credentials in your local secrets file so that terraform can use it to create a "rriv-beta" realm. From there, you can log in and create users.
+
 ## Terraform
 You must authenticate with DO and AWS before running terraform. Use `doctl` to authenticate to DO.
 

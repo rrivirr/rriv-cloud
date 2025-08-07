@@ -25,22 +25,30 @@ clusterIssuer:
       key: api-token
 
 externalSecret:
-  name: staging-digitalocean-api-key
-  namespace: cert-manager
   secretStoreRef:
-    name: staging-digitalocean-secret-store
-    namespace: cert-manager
-    kind: SecretStore
+    name: cluster-secret-store
+    namespace: external-secrets
+    kind: ClusterSecretStore
     vault:
       server: https://vault-staging.rriv.org:8200
       path: "secret"
       version: v2
-      
-  data:
-    secretKey: api-token
-    remoteRef:
-      key: secret/staging-digitalocean-dns-api-key
-      property: api-token
+  doApiKey:
+    name: staging-digitalocean-api-key
+    namespace: cert-manager
+    data:
+      secretKey: api-token
+      remoteRef:
+        key: secret/staging-digitalocean-dns-api-key
+        property: api-token
+  timescaleCreds:
+    name: staging-timescale-creds
+    namespace: default
+    data:
+      secretKey: database_url
+      remoteRef:
+        key: secret/staging-timescale-creds
+        property: database_url
 
 ingress:
   secretName: rriv-org-tls
@@ -49,6 +57,8 @@ ingress:
     vault: vault-staging.rriv.org
     chirpstack: chirp-staging.rriv.org
     chirpstackConsole: console.chirp-staging.rriv.org
+    dataApi: api-staging.rriv.org
+    webfinger: auth-staging.rriv.org
 
 ingress-nginx:
   controller:
@@ -57,7 +67,3 @@ ingress-nginx:
       enabled: true
     service:
       type: LoadBalancer
-
-ingressShim:
-  defaultIssuerName: letsencrypt 
-  defaultIssuerKind: ClusterIssuer

@@ -19,6 +19,10 @@ resource "vault_kv_secret_v2" "keycloak_creds" {
     db_username = var.keycloak_db_username,
     db_password = var.keycloak_db_password,
   })
+
+  custom_metadata {
+    data = var.kv_secret_tags
+  }
 }
 
 resource "vault_kv_secret_v2" "digitalocean_dns_api_key" {
@@ -28,6 +32,10 @@ resource "vault_kv_secret_v2" "digitalocean_dns_api_key" {
   data_json = jsonencode({
     api-token = var.do_dns_api_key
   })
+
+  custom_metadata {
+    data = var.kv_secret_tags
+  }
 }
 
 resource "vault_kv_secret_v2" "chirpstack_db_creds" {
@@ -39,6 +47,33 @@ resource "vault_kv_secret_v2" "chirpstack_db_creds" {
     pg_chirpstack_direct_connection_string = var.rriv_app_direct_connection_string, # Used for setup
     postgresql_ca_cert = var.postgresql_ca_cert,
   })
+
+  custom_metadata {
+    data = var.kv_secret_tags
+  }
 }
+
+# resource "vault_kv_secret_v2" "image_registry_pull_secret" {
+#   mount = vault_mount.app_secrets.path
+#   name  = "${var.env}-do-registry-image-pull-secret"
+
+#   data = {
+#     ".dockerconfigjson" = jsonencode({
+#       auths = {
+#         "registry.digitalocean.com" = {
+#           auth = "placeholder"
+#         }
+#       }
+#     })
+#   }
+
+#   custom_metadata {
+#     data = var.kv_secret_tags
+#   }
+
+#   lifecycle {
+#     ignore_changes = [data_json]
+#   }
+# }
 
 # TODO: add timescale creds as a resource

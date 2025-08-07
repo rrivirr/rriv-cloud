@@ -55,15 +55,16 @@ spec:
               export KC_DB_URL="jdbc:postgresql://${KC_DB_URL_HOST}:${KC_DB_URL_PORT}/${KC_DB_URL_DATABASE}?sslmode=require"
               export KC_DB_USERNAME="${KC_DB_USERNAME}"
               export KC_DB_PASSWORD="${KC_DB_PASSWORD}"
+              rm -f /vault/secrets/credentials.txt
               echo "Starting Keycloak..."
               exec /opt/keycloak/bin/kc.sh {{ .Values.keycloak.extraArgs | join " " }}
           resources:
             requests:
-              cpu: 50m
-              memory: 256Mi
-            limits:
               cpu: 200m
               memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
           env:
             - name: KC_DB
               value: "postgres"
@@ -73,33 +74,35 @@ spec:
               value: "true"
             - name: KC_HEALTH_ENABLED
               value: "true"
+            - name: KC_DB_SCHEMA
+              value: "keycloak"
 
           ports:
             - name: http
               containerPort: 8080
             - name: https
               containerPort: 8443
-          startupProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 15
-            timeoutSeconds: 10
-            failureThreshold: 40
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            timeoutSeconds: 10
-            failureThreshold: 3
+          # startupProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 8080
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 15
+          #   timeoutSeconds: 10
+          #   failureThreshold: 40
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health/ready
+          #     port: 8080
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 10
+          #   timeoutSeconds: 5
+          #   failureThreshold: 6
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health/live
+          #     port: 8080
+          #   initialDelaySeconds: 120
+          #   periodSeconds: 30
+          #   timeoutSeconds: 10
+          #   failureThreshold: 3

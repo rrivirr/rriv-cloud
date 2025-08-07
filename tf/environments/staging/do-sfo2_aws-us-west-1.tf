@@ -29,6 +29,10 @@ module "staging_do_sfo2_postgresdb" {
 
   env = local.env
   vpc_id = module.staging_do_sfo2_vpc.vpc_id
+
+  depends_on = [
+    module.staging_do_sfo2_vpc
+  ]
 }
 
 # Vault IAM user and KMS key
@@ -53,10 +57,25 @@ module "staging_aws_us-west-1_do_api_key" {
 
   env = local.env
   do_api_key = var.do_token
+  do_github_actions_api_key = var.do_github_actions_api_key
   vault_iam_user_name = module.staging_aws_us-west-1_vault.vault_iam_user_name
 
   depends_on = [
     module.staging_aws_us-west-1_vault
+  ]
+}
+
+module "staging_aws_us-west-1_github_actions" {
+  source = "../../modules/aws/github-actions"
+  providers = {
+    aws = aws.staging-us-west-1
+  }
+
+  env = local.env
+  secret_github_actions_do_api_key_arn = module.staging_aws_us-west-1_do_api_key.secret_github_actions_do_api_key_arn
+
+  depends_on = [
+    module.staging_aws_us-west-1_do_api_key
   ]
 }
 
@@ -154,22 +173,41 @@ module "staging_vault_sfo2" {
   }
 
   env                  = local.env
+  kv_secret_tags       = local.vault_kv_secret_tags
   rriv_token_reviewer_jwt    = module.staging_k8s_sfo2_rriv_cluster_secrets.vault_auth_token_data
   rriv_kubernetes_ca_cert    = module.staging_k8s_sfo2_rriv_cluster_secrets.vault_auth_ca_cert
-  rriv_app_pool_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_pool_connection_string
   rriv_app_direct_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_direct_connection_string
-  keycloak_db_host           = module.staging_do_sfo2_postgresdb.keycloak_db_host
-  keycloak_db_port           = module.staging_do_sfo2_postgresdb.keycloak_db_port
-  keycloak_db_name           = module.staging_do_sfo2_postgresdb.keycloak_db_name
-  keycloak_db_username       = module.staging_do_sfo2_postgresdb.keycloak_db_username
-  keycloak_db_password       = module.staging_do_sfo2_postgresdb.keycloak_db_password
+  rriv_app_pool_connection_string = module.staging_do_sfo2_postgresdb.rriv_app_pool_connection_string
+  keycloak_db_host          = module.staging_do_sfo2_postgresdb.keycloak_db_host
+  keycloak_db_port          = module.staging_do_sfo2_postgresdb.keycloak_db_port
+  keycloak_db_name          = module.staging_do_sfo2_postgresdb.keycloak_db_name
+  keycloak_db_username      = module.staging_do_sfo2_postgresdb.keycloak_db_username
+  keycloak_db_password      = module.staging_do_sfo2_postgresdb.keycloak_db_password
   keycloak_admin_username    = module.staging_aws_us-west-1_keycloak_bootstrap_creds.admin_username
   keycloak_admin_password    = module.staging_aws_us-west-1_keycloak_bootstrap_creds.admin_password
   postgresql_ca_cert         = module.staging_do_sfo2_postgresdb.postgresql_ca_cert
   rriv_kubernetes_host       = module.staging_do_sfo2_k8s_rriv_cluster.cluster_hostname
   do_dns_api_key             = var.do_token_rriv_cert_manager
+  do_registry_auth_token     = var.do_registry_auth_token
 
   depends_on = [
+    module.staging_k8s_sfo2_rriv_cluster_secrets,
+    module.staging_do_sfo2_postgresdb
+  ]
+}
+
+module "staging_keycloak_sfo2" {
+  source = "../../modules/keycloak"
+  providers = {
+    keycloak = keycloak.staging-sfo2-keycloak
+  }
+
+  env = local.env
+  smtp_username = module.staging_vault_sfo2.keycloak_smtp_creds["username"]
+  smtp_password = module.staging_vault_sfo2.keycloak_smtp_creds["password"]
+
+  depends_on = [
+    module.staging_vault_sfo2,
     module.staging_k8s_sfo2_rriv_cluster_secrets,
     module.staging_do_sfo2_postgresdb
   ]

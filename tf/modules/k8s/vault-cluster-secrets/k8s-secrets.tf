@@ -19,6 +19,13 @@ resource "kubernetes_secret" "vault_aws_access_key" {
   }
 
   type = "Opaque"
+
+  lifecycle {
+    ignore_changes = [
+      data["AWS_ACCESS_KEY_ID"],
+      data["AWS_SECRET_ACCESS_KEY"]
+    ]
+  }
 }
 
 resource "kubernetes_secret" "vault_aws_kms_key" {
@@ -32,6 +39,12 @@ resource "kubernetes_secret" "vault_aws_kms_key" {
   }
 
   type = "Opaque"
+
+  lifecycle {
+    ignore_changes = [
+      data["KMS_KEY_ID"]
+    ]
+  }
 }
 
 resource "kubernetes_secret" "do_api_token" {

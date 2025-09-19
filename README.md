@@ -53,6 +53,9 @@ You will need to set up the following files (copy and alter the `.example` files
 
 To apply Terraform changes, cd into the environment directory (`./tf/environments/...`) and run your terraform command from here. When you run `terraform init`, you must pass in `-backend-config=backend-$ENV.hcl`.
 
+#### Debugging "Unauthorized Resource" Terraform Errors
+If you get this error on the kubernetes terraform resources, you may need to re-apply the k8s-cluster module in order to regenerate the kubeconfig: `tf apply -target=module.$ENV_do_sfo2_k8s_rriv_cluster` or `tf apply -target=module.$ENV_do_sfo2_k8s_vault_cluster`
+
 ### Authenticating into DigitalOcean
 The first time you authenticate, you will need to set up DigitalOcean's CLI, `doctl`. See DO's documentation for using the package manager of your choice.
 

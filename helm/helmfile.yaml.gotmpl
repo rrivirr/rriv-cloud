@@ -12,8 +12,8 @@ environments:
 helmfiles:
   - path: helmfiles/vault.yaml.gotmpl
     values:
-      - /home/rootkat/Documents/code/rriv/rriv-cloud/helm/environments/{{ .Environment.Name }}.yaml
+      - environments/{{ .Environment.Name }}.yaml
   - path: helmfiles/rriv.yaml.gotmpl
     values:
-      - /home/rootkat/Documents/code/rriv/rriv-cloud/helm/environments/{{ .Environment.Name }}.yaml
+      - environments/{{ .Environment.Name }}.yaml
 

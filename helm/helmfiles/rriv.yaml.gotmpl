@@ -9,9 +9,7 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: hashicorp
     url: https://helm.releases.hashicorp.com
-  - name: emissary
-    url: https://getambassador.io
-
+    
 releases:
   - name: rriv-external-secrets
     namespace: external-secrets
@@ -72,13 +70,6 @@ releases:
     needs:
       - vault-system/vault-agent-injector
       - default/rriv-external-vault-connect
-  
-  - name: emissary-ingress
-    namespace: emissary
-    chart: datawire/emissary-ingress
-    version: 8.12.2
-    values:
-      - ../charts/emissary/values.yaml
 
   - name: rriv-chirpstack
     namespace: default

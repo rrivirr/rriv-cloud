@@ -7,8 +7,6 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: {{ .Values.certificate.issuerRef.name }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -16,7 +14,7 @@ spec:
 {{ toYaml .Values.certificate.dnsNames | indent 6 }}
       secretName: {{ .Values.ingress.secretName }}
   rules:
-    - host: {{ .Values.ingress.hosts.webfinger }}
+    - host: {{ .Values.ingress.hosts.keycloak }}
       http:
         paths:
           - path: /.well-known/webfinger
@@ -26,16 +24,6 @@ spec:
                 name: webfinger-app
                 port:
                   number: 80
-          # - path: /
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: wix-redirect
-          #       port:
-          #         number: 80
-    - host: {{ .Values.ingress.hosts.keycloak }}
-      http:
-        paths:
           - path: /
             pathType: Prefix
             backend:
@@ -73,6 +61,25 @@ spec:
                 name: chirpstack
                 port:
                   number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rriv-data-api
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: {{ .Values.certificate.issuerRef.name }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hosts.dataApi }}
+      secretName: {{ .Values.ingress.secretName }}
+  rules:
     - host: {{ .Values.ingress.hosts.dataApi }}
       http:
         paths:
@@ -83,5 +90,12 @@ spec:
                 name: data-api
                 port:
                   number: 80
----
+          - path: /rriv(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: rriv-api
+                port:
+                  number: 80
+
 

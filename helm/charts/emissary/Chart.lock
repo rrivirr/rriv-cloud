@@ -1,6 +1,0 @@
-dependencies:
-- name: emissary-ingress
-  repository: https://app.getambassador.io
-  version: 8.9.1
-digest: sha256:9b6c3c7bea91fda39c9f90c27efddafbddcd9d5221fe3fc9e217e2e46fc8182c
-generated: "2025-07-22T14:40:09.765110789-07:00"

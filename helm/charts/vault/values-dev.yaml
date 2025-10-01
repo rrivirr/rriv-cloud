@@ -101,10 +101,10 @@ vault:
     annotations:
       service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
       service.beta.kubernetes.io/do-loadbalancer-tls-ports: "8200"
-      service.beta.kubernetes.io/do-loadbalancer-name: "vault.dev.rriv.org"
+      service.beta.kubernetes.io/do-loadbalancer-name: "vault-dev"
     # Restrict access to Headscale VPN exit IP only
     loadBalancerSourceRanges:
-      - "165.22.159.67/32"
+      - "165.227.242.155/32"
 
   ui:
     enabled: true

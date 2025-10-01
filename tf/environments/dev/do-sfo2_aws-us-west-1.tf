@@ -35,18 +35,6 @@ module "dev_do_sfo2_postgresdb" {
   ]
 }
 
-module "dev_do_sfo2_vpn" {
-  source = "../../modules/do/vpn"
-  providers = {
-    digitalocean = digitalocean
-  }
-
-  do_region         = local.do_region
-  droplet_size      = var.vpn_droplet_size
-  ssh_fingerprint   = var.vpn_ssh_fingerprint
-  tailscale_authkey = var.vpn_tailscale_authkey
-}
-
 # Vault IAM user and KMS key
 module "dev_aws_us-west-1_vault" {
   source = "../../modules/aws/vault-iam-user"
@@ -68,7 +56,7 @@ module "dev_aws_us-west-1_do_api_key" {
   }
 
   env = local.env
-  do_api_key = var.do_token
+  do_dns_api_key = var.do_token
   do_github_actions_api_key = var.do_github_actions_api_key
   vault_iam_user_name = module.dev_aws_us-west-1_vault.vault_iam_user_name
 
@@ -153,6 +141,7 @@ module "dev_k8s_sfo2_vault_cluster_secrets" {
 
   env                                = local.env
   do_token                           = var.do_token
+  do_token_rriv_cert_manager         = var.do_token_rriv_cert_manager
   vault_iam_user_access_key_secret_name = var.vault_iam_user_access_key_secret_name
   vault_kms_key_alias = var.vault_kms_key_alias
 

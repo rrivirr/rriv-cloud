@@ -4,6 +4,8 @@ metadata:
   name: lorawan-simulator-service
   labels:
     app: lorawan-simulator
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-name: "lorawan-simulator-{{ .Values.global.environment }}"
 spec:
   selector:
     app: lorawan-simulator

@@ -44,6 +44,16 @@ resource "vault_kubernetes_auth_backend_role" "keycloak" {
   token_ttl      = 3600
 }
 
+resource "vault_kubernetes_auth_backend_role" "headscale" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "headscale"
+  bound_service_account_names      = [var.headscale_auth_service_account_name]
+  bound_service_account_namespaces = ["headscale"]
+
+  token_policies = [vault_policy.headscale_policy.name]
+  token_ttl      = 3600
+}
+
 # Role for microservice Secrets Operator
 resource "vault_kubernetes_auth_backend_role" "services_external_secrets" {
   backend                          = vault_auth_backend.kubernetes_rriv.path

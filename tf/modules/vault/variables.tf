@@ -21,6 +21,12 @@ variable "keycloak_auth_service_account_name" {
   default     = "keycloak-sa"
 }
 
+variable "headscale_auth_service_account_name" {
+  description = "Service account name for Headscale authentication"
+  type        = string
+  default     = "headscale-sa"
+}
+
 variable "rriv_app_pool_connection_string" {
   description = "Connection string for the ChirpStack application database pool"
   type        = string
@@ -81,6 +87,7 @@ variable "rriv_token_reviewer_jwt" {
 variable "rriv_kubernetes_ca_cert" {
   description = "CA certificate for the RRIV Kubernetes API server"
   type        = string
+  sensitive   = true
 }
 
 variable "postgresql_ca_cert" {
@@ -92,6 +99,15 @@ variable "do_dns_api_key" {
   description = "DigitalOcean API key for External Secrets Operator to manage DNS records"
   type        = string
   sensitive   = true
+}
+
+variable "rriv_api_database_url" {
+  description = "Credential string for the RRIV API postgresql database"
+  type        = string
+}
+variable "data_api_database_url" {
+  description = "Credential string for the Data API postgresql database"
+  type        = string
 }
 
 # TODO: include this

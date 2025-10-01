@@ -27,6 +27,7 @@ path "secret/*" {
 EOT
 }
 
+# TODO: separate or use paths with *
 resource "vault_policy" "webapp_policy" {
   name = "webapp"
   policy = <<EOT
@@ -54,16 +55,24 @@ path "secret/data/${var.env}-keycloak-creds" {
 EOT
 }
 
-resource "vault_policy" "oidc_provider_policy" {
-  name = "oidc-provider"
+resource "vault_policy" "headscale_policy" {
+  name = "headscale"
   policy = <<EOT
-path "identity/oidc/provider/rriv-internal/authorize" {
-  capabilities = ["read"]
+path "secret/data/${var.env}-vpn-secrets" {
+  capabilities = ["read", "list"]
 }
 EOT
 }
 
-# TODO: separate policy for each service
+# resource "vault_policy" "oidc_provider_policy" {
+#   name = "oidc-provider"
+#   policy = <<EOT
+# path "identity/oidc/provider/rriv-internal/authorize" {
+#   capabilities = ["read"]
+# }
+# EOT
+# }
+
 resource "vault_policy" "services_external_secrets_policy" {
   name = "services-external-secrets"
   policy = <<EOT

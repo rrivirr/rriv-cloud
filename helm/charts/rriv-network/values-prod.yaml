@@ -1,15 +1,14 @@
 digitaloceanApiTokenSecret:
-  name: prod-digitalocean-api-key
+  name: prod-digitalocean-dns-api-key
   key: api-token
   namespace: cert-manager
 
 certificate:
-  name: rriv-org-cert
-  secretName: rriv-org-tls
+  name: rriv-prod-org-cert
+  secretName: rriv-prod-org-tls
   dnsNames:
     - rriv.org
     - '*.rriv.org'
-    - '*.chirp.rriv.org'
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
@@ -21,11 +20,11 @@ clusterIssuer:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: prod-digitalocean-api-key
+      name: prod-digitalocean-dns-api-key
       key: api-token
 
 externalSecret:
-  name: prod-digitalocean-api-key
+  name: prod-digitalocean-dns-api-key
   namespace: cert-manager
   secretStoreRef:
     name: prod-digitalocean-secret-store
@@ -43,12 +42,12 @@ externalSecret:
       property: api-token
 
 ingress:
-  secretName: rriv-org-tls
+  secretName: rriv-prodorg-tls
   hosts:
     keycloak: auth.rriv.org
     vault: vault.rriv.org
     chirpstack: chirp.rriv.org
-    chirpstackConsole: console.chirp.rriv.org
+    chirpstackConsole: console-chirp.rriv.org
     webfinger: auth.rriv.org
 
 ingress-nginx:
@@ -58,3 +57,5 @@ ingress-nginx:
       enabled: true
     service:
       type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: "ingress-nginx-controller-prod"

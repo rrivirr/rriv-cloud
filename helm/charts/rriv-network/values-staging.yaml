@@ -1,15 +1,14 @@
 digitaloceanApiTokenSecret:
-  name: staging-digitalocean-api-key
+  name: staging-digitalocean-dns-api-key
   key: api-token
   namespace: cert-manager
 
 certificate:
-  name: rriv-org-cert
-  secretName: rriv-org-tls
+  name: rriv-staging-org-cert
+  secretName: rriv-staging-org-tls
   dnsNames:
-    - rriv.org
-    - '*.rriv.org'
-    - '*.chirp-staging.rriv.org'
+    - 'staging.rriv.org'
+    - '*.staging.rriv.org'
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
@@ -21,7 +20,7 @@ clusterIssuer:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: staging-digitalocean-api-key
+      name: staging-digitalocean-dns-api-key
       key: api-token
 
 externalSecret:
@@ -34,7 +33,7 @@ externalSecret:
       path: "secret"
       version: v2
   doApiKey:
-    name: staging-digitalocean-api-key
+    name: staging-digitalocean-dns-api-key
     namespace: cert-manager
     data:
       secretKey: api-token
@@ -51,14 +50,14 @@ externalSecret:
         property: database_url
 
 ingress:
-  secretName: rriv-org-tls
+  secretName: rriv-staging-org-tls
   hosts:
-    keycloak: auth-staging.rriv.org
-    vault: vault-staging.rriv.org
-    chirpstack: chirp-staging.rriv.org
-    chirpstackConsole: console.chirp-staging.rriv.org
-    dataApi: api-staging.rriv.org
-    webfinger: auth-staging.rriv.org
+    keycloak: auth.staging.rriv.org
+    vault: vault.staging.rriv.org
+    chirpstack: chirp.staging.rriv.org
+    chirpstackConsole: console-chirp.staging.rriv.org
+    dataApi: api.staging.rriv.org
+    webfinger: auth.staging.rriv.org
 
 ingress-nginx:
   controller:
@@ -67,3 +66,5 @@ ingress-nginx:
       enabled: true
     service:
       type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: "ingress-nginx-controller-staging"

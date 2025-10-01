@@ -1,27 +1,26 @@
 digitaloceanApiTokenSecret:
-  name: dev-digitalocean-api-key
+  name: dev-digitalocean-dns-api-key
   key: api-token
   namespace: cert-manager
 
 certificate:
-  name: rriv-org-cert
-  secretName: rriv-org-tls
+  name: rriv-dev-org-cert
+  secretName: rriv-dev-org-tls
   dnsNames:
-    - rriv.org
-    - '*.rriv.org'
-    - '*.chirp-dev.rriv.org'
+    - 'dev.rriv.org'
+    - '*.dev.rriv.org'
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
 
 clusterIssuer:
-  server: https://acme-v02.api.letsencrypt.org/directory
+  server: https://acme-v02.api.letsencrypt.org/directory 
   email: dev@rriv.org
   privateKeySecretRef:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: dev-digitalocean-api-key
+      name: dev-digitalocean-dns-api-key
       key: api-token
 
 externalSecret:
@@ -30,11 +29,11 @@ externalSecret:
     namespace: external-secrets
     kind: ClusterSecretStore
     vault:
-      server: https://vault-dev.rriv.org:8200
+      server: https://vault.dev.rriv.org:8200
       path: "secret"
       version: v2
   doApiKey:
-    name: dev-digitalocean-api-key
+    name: dev-digitalocean-dns-api-key
     namespace: cert-manager
     data:
       secretKey: api-token
@@ -51,14 +50,14 @@ externalSecret:
         property: database_url
 
 ingress:
-  secretName: rriv-org-tls
+  secretName: rriv-dev-org-tls
   hosts:
-    keycloak: auth-dev.rriv.org
-    vault: vault-dev.rriv.org
-    chirpstack: chirp-dev.rriv.org
-    chirpstackConsole: console.chirp-dev.rriv.org
-    dataApi: api-dev.rriv.org
-    webfinger: auth-dev.rriv.org
+    keycloak: auth.dev.rriv.org
+    vault: vault.dev.rriv.org
+    chirpstack: chirp.dev.rriv.org
+    chirpstackConsole: console-chirp.dev.rriv.org
+    dataApi: api.dev.rriv.org
+    webfinger: auth.dev.rriv.org
 
 ingress-nginx:
   controller:
@@ -67,3 +66,5 @@ ingress-nginx:
       enabled: true
     service:
       type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: "ingress-nginx-controller-dev"

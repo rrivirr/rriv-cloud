@@ -42,3 +42,15 @@ output "postgresql_ca_cert" {
   sensitive = true
   description = "CA certificate for PostgreSQL SSL connections"
 }
+
+output "rriv_api_database_url" {
+  value     = local.rriv_api_database_url
+  sensitive = true
+  description = "Database URL for the RRIV API"
+}
+
+output "data_api_database_url" {
+  value     = local.data_api_database_url
+  sensitive = true
+  description = "Database URL for the Data API"
+}

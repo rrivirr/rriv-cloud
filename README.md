@@ -24,6 +24,12 @@ We use helm for configuring the k8s clusters. Additionally, the DO infrastructur
 AWS is used sparingly. Its main purpose is to act as the guardian of our Vault root token. For this, we have some very basic infrastructure captured in Terraform as well, stored again in DigitalOcean statefiles.
 
 ## How-Tos
+
+There are a handful of resources that have been set up manually. They are as follows:
+- AWS S3 bucket in the `rriv` (management) account
+- DO S3 bucket in each of the dev, staging, and prod team accounts
+- DO S3 bucket access key with read/write/delete on the above S3 bucket (limited scope)
+
 ### Deployment order
 
 1. TODO: Terraform to set up SSO users and provision the environment accounts from the management account: rriv-dev, etc
@@ -59,9 +65,9 @@ If you get this error on the kubernetes terraform resources, you may need to re-
 ### Authenticating into DigitalOcean
 The first time you authenticate, you will need to set up DigitalOcean's CLI, `doctl`. See DO's documentation for using the package manager of your choice.
 
-Log in to DO on the web. Go to the [API tokens page](https://cloud.digitalocean.com/account/api/tokens) and create a new Personal Access Token. Give it an expiration of 90 days (for security purposes, we don't want to create forever tokens). **Save** the PAT in your personal Proton Pass vault.
+Log in to DO on the web. Go to the [API tokens page](https://cloud.digitalocean.com/account/api/tokens) and create a new **Personal Access Token**. Give it an expiration of 90 days (for security purposes, we don't want to create forever tokens). Give it full access, as you will need to be able to touch most different kinds of resources in order to develop in DO. **Save** the PAT in your personal Proton Pass vault.
 
-With the PAT copied, run `doctl auth init --context rriv-dev`. Paste in the token.
+With the PAT copied, run `doctl auth init --context rriv-dev`. Paste in the token. You will need to come back and do this step with each team (account) you plan to develop in.
 
 Now run: `doctl kubernetes cluster list`. You should see the rriv-dev cluster and the vault-dev clusters.
 

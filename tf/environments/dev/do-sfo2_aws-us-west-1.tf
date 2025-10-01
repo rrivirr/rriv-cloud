@@ -199,6 +199,8 @@ module "dev_vault_sfo2" {
   rriv_kubernetes_host       = module.dev_do_sfo2_k8s_rriv_cluster.cluster_hostname
   do_dns_api_key             = var.do_token_rriv_cert_manager
   do_registry_auth_token     = var.do_registry_auth_token
+  data_api_database_url       = module.dev_do_sfo2_postgresdb.data_api_database_url
+  rriv_api_database_url       = module.dev_do_sfo2_postgresdb.rriv_api_database_url
 
   depends_on = [
     module.dev_k8s_sfo2_rriv_cluster_secrets,

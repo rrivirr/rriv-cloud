@@ -24,5 +24,6 @@ charts/**/data/**
 **/backend.hcl
 **/*.tfstate
 **/*.tfstate.*
+**.tfvars
 **/charts/*.tgz
 tf/**/kubeconfig/*.yaml

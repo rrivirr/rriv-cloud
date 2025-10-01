@@ -27,8 +27,8 @@ module "staging_do_sfo2_postgresdb" {
     digitalocean = digitalocean
   }
 
-  env = local.env
-  vpc_id = module.staging_do_sfo2_vpc.vpc_id
+  env            = local.env
+  vpc_id         = module.staging_do_sfo2_vpc.vpc_id
 
   depends_on = [
     module.staging_do_sfo2_vpc
@@ -79,7 +79,7 @@ module "staging_aws_us-west-1_github_actions" {
   ]
 }
 
-# # Vault k8s cluster
+# Vault k8s cluster
 module "staging_do_sfo2_k8s_vault_cluster" {
   source = "../../modules/do/k8s-cluster"
   providers = {
@@ -93,12 +93,12 @@ module "staging_do_sfo2_k8s_vault_cluster" {
   vpc_id                     = module.staging_do_sfo2_vpc.vpc_id
 
   depends_on = [
-    module.staging_do_sfo2_postgresdb,
+    module.staging_do_sfo2_vpc,
     module.staging_aws_us-west-1_do_api_key
   ]
 }
 
-# # rriv app k8s cluster
+# rriv app k8s cluster
 module "staging_do_sfo2_k8s_rriv_cluster" {
   source = "../../modules/do/k8s-cluster"
   providers = {
@@ -111,15 +111,15 @@ module "staging_do_sfo2_k8s_rriv_cluster" {
   node_count   = local.rriv_cluster_node_count
   node_size    = "s-2vcpu-4gb"
   vpc_id       = module.staging_do_sfo2_vpc.vpc_id
-  
   depends_on = [
+    module.staging_do_sfo2_vpc,
     module.staging_do_sfo2_k8s_vault_cluster
   ]
 }
 
 module "staging_helm_setup" {
   source = "../../modules/helm"
-
+  
   env = local.env
 
   depends_on = [
@@ -132,7 +132,6 @@ module "staging_helm_setup" {
 ## THIS IS THE POINT AT WHICH HELM MUST BE APPLIED ##
 #####################################################
 
-# K8s secrets in the Vault cluster
 module "staging_k8s_sfo2_vault_cluster_secrets" {
   source = "../../modules/k8s/vault-cluster-secrets"
   providers = {
@@ -140,20 +139,20 @@ module "staging_k8s_sfo2_vault_cluster_secrets" {
     aws        = aws.staging-us-west-1
   }
 
-  env                  = local.env
-  do_token             = var.do_token
+  env                                = local.env
+  do_token                           = var.do_token
+  do_token_rriv_cert_manager         = var.do_token_rriv_cert_manager
   vault_iam_user_access_key_secret_name = var.vault_iam_user_access_key_secret_name
   vault_kms_key_alias = var.vault_kms_key_alias
 
   depends_on = [
-    module.staging_helm_setup,
+    module.staging_helm_setup
   ]
 }
 
-
-# # k8s secrets for the rriv app
-# # Most secrets are created by Vault, but there are a couple needed to 
-# # authenticate rriv with vault
+# k8s secrets for the rriv app
+# Most secrets are created by Vault, but there are a couple needed to 
+# authenticate rriv with vault
 module "staging_k8s_sfo2_rriv_cluster_secrets" {
   source = "../../modules/k8s/rriv-cluster-secrets"
   providers = {
@@ -165,7 +164,7 @@ module "staging_k8s_sfo2_rriv_cluster_secrets" {
   ]
 }
 
-# # Vault provider configuration module
+# Vault provider configuration module
 module "staging_vault_sfo2" {
   source = "../../modules/vault"
   providers = {
@@ -189,6 +188,8 @@ module "staging_vault_sfo2" {
   rriv_kubernetes_host       = module.staging_do_sfo2_k8s_rriv_cluster.cluster_hostname
   do_dns_api_key             = var.do_token_rriv_cert_manager
   do_registry_auth_token     = var.do_registry_auth_token
+  data_api_database_url       = module.staging_do_sfo2_postgresdb.data_api_database_url
+  rriv_api_database_url       = module.staging_do_sfo2_postgresdb.rriv_api_database_url
 
   depends_on = [
     module.staging_k8s_sfo2_rriv_cluster_secrets,
@@ -208,7 +209,7 @@ module "staging_keycloak_sfo2" {
 
   depends_on = [
     module.staging_vault_sfo2,
-    module.staging_k8s_sfo2_rriv_cluster_secrets,
-    module.staging_do_sfo2_postgresdb
+    module.staging_aws_us-west-1_keycloak_bootstrap_creds,
+    module.staging_k8s_sfo2_vault_cluster_secrets,
   ]
 }

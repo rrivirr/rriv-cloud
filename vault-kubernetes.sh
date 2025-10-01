@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ENV="${1:-dev}"  # default to "dev" if not passed
-VAULT_ADDR="https://vault-${ENV}.rriv.org:8200"
+VAULT_ADDR="https://vault.${ENV}.rriv.org:8200"
 
 # Use this export so vault CLI works
 export VAULT_ADDR

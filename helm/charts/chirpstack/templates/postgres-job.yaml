@@ -54,7 +54,7 @@ data:
     exit_after_auth = true
 
     vault {
-      address = "https://vault-{{ .Values.environment }}.rriv.org:8200"
+      address = "https://{{ .Values.vaultSubdomain }}.rriv.org:8200"
     }
 
     auto_auth {

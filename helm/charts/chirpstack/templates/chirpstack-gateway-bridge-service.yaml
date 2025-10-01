@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    service.beta.kubernetes.io/do-loadbalancer-name: "chirpstack-gateway-bridge"
+    service.beta.kubernetes.io/do-loadbalancer-name: "chirpstack-gateway-bridge-{{ .Values.environment }}"
   labels:
     app: chirpstack-gateway-bridge
   name: chirpstack-gateway-bridge

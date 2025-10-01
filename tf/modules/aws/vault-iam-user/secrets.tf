@@ -1,5 +1,6 @@
 resource "aws_secretsmanager_secret" "vault_iam_user_access_keys" {
   name = var.iam_user_access_key_secret_name
+  description = "IAM access key and secret key for the Vault IAM user in the ${var.env} environment"
 }
 
 resource "aws_secretsmanager_secret_version" "vault_iam_user_access_keys" {
@@ -11,7 +12,8 @@ resource "aws_secretsmanager_secret_version" "vault_iam_user_access_keys" {
 }
 
 resource "aws_secretsmanager_secret" "vault_kms_key" {
-  name  = var.kms_key_alias
+  name  = "rriv-${var.env}-vault-kms-key-id"
+  description = "KMS key ID for the Vault root encryption key in the ${var.env} environment"
 }
 
 resource "aws_secretsmanager_secret_version" "vault_kms_key" {

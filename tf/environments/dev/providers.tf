@@ -18,8 +18,8 @@ terraform {
       version = ">= 5.0.0"
     }
     keycloak = {
-      source  = "keycloak/keycloak"
-      version = ">= 5.4.0"
+      source  = "mrparkers/keycloak"
+      version = ">= 4.0.0"
     }
   }
 
@@ -72,7 +72,7 @@ provider "kubernetes" {
 
 provider "vault" {
   alias   = "dev-sfo2-vault"
-  address = "https://vault-${local.env}.rriv.org:8200"
+  address = "https://vault.${local.env}.rriv.org:8200"
   token   = var.vault_token
 }
 
@@ -80,5 +80,5 @@ provider "keycloak" {
   alias         = "dev-sfo2-keycloak"
   client_id     = "terraform"
   client_secret = var.keycloak_client_secret # Create this from Keycloak admin console upon initial login
-  url           = "https://auth-${local.env}.rriv.org"
+  url           = "https://auth.${local.env}.rriv.org"
 }

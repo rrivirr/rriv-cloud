@@ -1,8 +1,3 @@
-# output vpn_droplet_ip {
-#   value       = module.dev_do_sfo2_vpn.droplet_ip
-#   description = "IP address of the Tailscale exit node droplet in SFO2"
-# }
-
 output "DEV_GITHUB_ACTIONS_AWS_ROLE_ARN" {
   value       = "${module.dev_aws_us-west-1_github_actions.github_actions_role_arn} # goes in Github org settings variables"
   description = "ARN of the GitHub Actions IAM role"
@@ -43,6 +38,12 @@ output "PROTONPASS_vault_zaven_password" {
   description = "Password for the zaven user in Vault"
 }
 
+output "PROTONPASS_vault_daniel_password" {
+  value       = module.dev_vault_sfo2.daniel_password
+  sensitive   = true
+  description = "Password for the daniel user in Vault"
+}
+
 output "vault_auth_ca_cert" {
   value       = module.dev_k8s_sfo2_rriv_cluster_secrets.vault_auth_ca_cert
   sensitive   = true
@@ -53,4 +54,22 @@ output "postgresql_ca_cert" {
   value       = module.dev_do_sfo2_postgresdb.postgresql_ca_cert
   sensitive   = true
   description = "PostgreSQL CA certificate for SSL connections"
+}
+
+output "headscale_oidc_client_id" {
+  value       = module.dev_keycloak_sfo2.headscale_oidc_client_id
+  description = "Client ID for the Headscale service"
+}
+
+# Enter this manually into Vault since Keycloak has to be applied first
+output "headscale_oidc_client_secret" {
+  value       = module.dev_keycloak_sfo2.headscale_oidc_client_secret
+  sensitive   = true
+  description = "Client secret for the Headscale service"
+}
+
+output "do_dns_api_token" {
+  value       = module.dev_k8s_sfo2_vault_cluster_secrets.do_dns_api_token
+  sensitive   = true
+  description = "DNS API token for DigitalOcean"
 }

@@ -52,19 +52,4 @@ variable "keycloak_client_secret" {
   default     = ""
 }
 
-variable "vpn_droplet_size" {
-  description = "Droplet size for the Tailscale exit node"
-  type        = string
-  default     = "s-1vcpu-1gb"
-}
-
-variable "vpn_ssh_fingerprint" {
-  description = "SSH key fingerprint to access the droplet"
-  type        = string
-}
-
-variable "vpn_tailscale_authkey" {
-  type        = string
-  description = "Tailscale auth key for the exit node"
-}
 

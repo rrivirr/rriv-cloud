@@ -3,17 +3,13 @@ terraform {
   required_providers {
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "2.53.0"
+      version = "~>2.0"
     }
     aws = {
       source  = "hashicorp/aws"
       version = ">=5.0"
     }
   }
-
-  # See backend.hcl.example
-  # Use the backend file with the command:
-  # terraform init -backend-config=backend.hcl
 
   backend "s3" {
     bucket = "" 
@@ -28,7 +24,23 @@ terraform {
 }
 
 provider "digitalocean" {
+  alias = "management-sfo2"
   token = var.do_token
+}
+
+provider "digitalocean" {
+  alias = "dev-sfo2"
+  token = var.dev_do_token
+}
+
+provider "digitalocean" {
+  alias = "staging-sfo2"
+  token = var.staging_do_token
+}
+
+provider "digitalocean" {
+  alias = "prod-sfo2"
+  token = var.prod_do_token
 }
 
 provider "aws" {

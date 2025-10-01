@@ -47,13 +47,14 @@ resource "kubernetes_secret" "vault_aws_kms_key" {
   }
 }
 
-resource "kubernetes_secret" "do_api_token" {
+# Used by vault to create DNS TXT records for ACME DNS-01 challenge
+resource "kubernetes_secret" "do_dns_api_token" {
   metadata {
-    name      = "${var.env}-digitalocean-api-key"
+    name      = "${var.env}-digitalocean-dns-api-key"
     namespace = "cert-manager"
   }
   data = {
-    api-token = var.do_token
+    api-token = var.do_token_rriv_cert_manager
   }
   type = "Opaque"
 }

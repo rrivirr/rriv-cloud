@@ -25,6 +25,12 @@ variable "do_token" {
   sensitive   = true
 }
 
+variable "do_token_rriv_cert_manager" {
+  description = "DigitalOcean API token scoped for domain read/update only. Used by cert-manager for DNS challenges"
+  type        = string
+  sensitive   = true
+}
+
 variable "vault_iam_user_access_key_secret_name" {
   description = "The name of the AWS Secrets Manager secret that stores the Vault IAM user access keys"
   type        = string

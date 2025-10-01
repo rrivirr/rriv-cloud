@@ -18,6 +18,7 @@ spec:
         app: keycloak
       annotations:
         vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/agent-inject-address: {{ .Values.vault.address}}
         vault.hashicorp.com/role: 'keycloak'
         vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
         vault.hashicorp.com/audience: "vault"

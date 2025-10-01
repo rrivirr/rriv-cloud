@@ -2,7 +2,7 @@ keycloak:
   extraArgs:
     - start
     - "--health-enabled=true"
-    - "--hostname=auth-staging.rriv.org"
+    - "--hostname=auth.rriv.org"
     - "--proxy-headers=xforwarded"
     - "--http-enabled=true"
     - "--hostname-strict=false"
@@ -11,7 +11,7 @@ keycloak:
     tag: 26.0.7
 
 webfingerDeployment:
-  image: kleipper/rriv-webfinger-app:staging # TODO: put this in a rriv docker account
+  image: kleipper/rriv-webfinger-app:latest
 
 vault:
-  address: "https://vault.staging.rriv.org:8200"
+  address: "https://vault.rriv.org:8200"

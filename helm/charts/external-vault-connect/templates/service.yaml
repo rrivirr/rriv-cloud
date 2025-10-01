@@ -1,8 +1,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    service.beta.kubernetes.io/do-loadbalancer-name: "external-vault-connect"
   name: external-vault-connect
   namespace: default
 spec:
@@ -10,3 +8,4 @@ spec:
   ports:
     - port: 8200
       targetPort: 8200
+  type: ClusterIP

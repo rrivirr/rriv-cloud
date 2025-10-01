@@ -5,7 +5,7 @@ app = Flask(__name__)
 env = os.getenv("ENV", "dev")
 
 if env in ("dev", "staging"):
-    REALM_ISSUER = f"https://auth-{env}.rriv.org/realms/rriv-beta-{env}"
+    REALM_ISSUER = f"https://auth.{env}.rriv.org/realms/rriv-beta-{env}"
 else:
     REALM_ISSUER = "https://auth.rriv.org/realms/rriv-beta-prod"
 DOMAIN = "rriv.org"

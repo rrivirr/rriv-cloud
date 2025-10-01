@@ -24,6 +24,8 @@ releases:
     version: 0.18.2
     createNamespace: true
     set:
+      - name: global.environment
+        value: {{ .Environment.Name }}
       - name: crds.enabled
         value: true
     needs:
@@ -36,6 +38,9 @@ releases:
     createNamespace: true
     values:
       - ../charts/vault/values-{{ .Environment.Name }}.yaml
+    set:
+      - name: global.environment
+        value: {{ .Environment.Name }}
     needs:
       - cert-manager/cert-manager
       - external-secrets/vault-external-secrets
@@ -46,6 +51,8 @@ releases:
     version: 0.10.0
     createNamespace: true
     set:
+      - name: global.environment
+        value: {{ .Environment.Name }}
       - name: vaultAddress
         value: "https://vault.vault.svc.cluster.local:8200"
       - name: vaultNamespace

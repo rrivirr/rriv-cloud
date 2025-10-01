@@ -1,6 +1,3 @@
-global:
-  environment: "staging"
-
 vault:
   enabled: true
   server:
@@ -117,13 +114,13 @@ clusterIssuer:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: staging-digitalocean-api-key
+      name: staging-digitalocean-dns-api-key
       key: api-token
 certificate:
   name: vault-cert
   secretName: vault-tls
   dnsNames:
-    - vault-staging.rriv.org
+    - vault.staging.rriv.org
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer

@@ -13,5 +13,6 @@ spec:
       - dns01:
           digitalocean:
             tokenSecretRef:
-              name: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.name }}  # The Secret containing the DigitalOcean API token
+              name: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.name }}  # The Secret containing the DigitalOcean DNS API token
               key: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.key }}  # The key within the Secret that contains the API token
+              namespace: {{ .Values.clusterIssuer.digitalocean.apiTokenSecretRef.namespace }}  # The namespace of the Secret

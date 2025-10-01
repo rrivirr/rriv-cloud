@@ -3,9 +3,8 @@ variable "env" {
   description = "Environment name"
 }
 
-# TODO: rename to do_vault_api_key
-variable "do_api_key" {
-  description = "DigitalOcean API key for Vault operations"
+variable "do_dns_api_key" {
+  description = "DigitalOcean DNS API key for Vault TLS certs"
   type        = string
   sensitive   = true
 }

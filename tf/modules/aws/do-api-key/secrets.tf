@@ -1,12 +1,12 @@
-resource "aws_secretsmanager_secret" "do_api_key" {
-  name        = "rriv-${var.env}-do-api-key"
-  description = "DO API key for Vault in ${var.env} environment"
+resource "aws_secretsmanager_secret" "do_dns_api_key" {
+  name        = "rriv-${var.env}-do-dns-api-key"
+  description = "DO API key for creating Vault TLS certificate in ${var.env} environment"
 }
 
-resource "aws_secretsmanager_secret_version" "do_api_key" {
-  secret_id     = aws_secretsmanager_secret.do_api_key.id
+resource "aws_secretsmanager_secret_version" "do_dns_api_key" {
+  secret_id     = aws_secretsmanager_secret.do_dns_api_key.id
   secret_string = jsonencode({
-    api_token = var.do_api_key
+    api_token = var.do_dns_api_key
   })
 
   lifecycle {

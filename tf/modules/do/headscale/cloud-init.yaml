@@ -3,29 +3,13 @@ package_update: true
 package_upgrade: true
 
 packages:
-  - docker.io
-  - docker-compose
   - nginx
   - certbot
   - python3-certbot-nginx
+  - sqlite3
 
 write_files:
-  - path: /opt/headscale/docker-compose.yml
-    content: |
-      version: '3.8'
-      services:
-        headscale:
-          image: headscale/headscale:latest
-          container_name: headscale
-          restart: unless-stopped
-          ports:
-            - "8080:8080"
-          volumes:
-            - ./config:/etc/headscale
-            - ./data:/var/lib/headscale
-          command: serve
-
-  - path: /opt/headscale/config/config.yaml
+  - path: /etc/headscale/config.yaml
     content: |
       server_url: https://${domain}
       listen_addr: 0.0.0.0:8080
@@ -37,7 +21,7 @@ write_files:
         scope: ["openid", "profile", "email"]
       
       noise:
-        private_key_path: /var/lib/headscale/noise_private.key
+        private_key_path: /mnt/headscale-data/lib/noise_private.key
       
       prefixes:
         v4: 100.64.0.0/10
@@ -63,7 +47,7 @@ write_files:
       database:
         type: sqlite
         sqlite:
-          path: /var/lib/headscale/db.sqlite
+          path: /mnt/headscale-data/lib/db.sqlite
       
       # Enable Tailscale SSH (users can SSH via their Tailscale identity)
       ssh:
@@ -75,6 +59,33 @@ write_files:
       
       log:
         level: info
+
+  - path: /etc/systemd/system/headscale.service
+    content: |
+      [Unit]
+      Description=headscale controller
+      After=syslog.target
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=headscale
+      Group=headscale
+      ExecStart=/usr/local/bin/headscale serve
+      Restart=always
+      RestartSec=5
+
+      # Optional security enhancements
+      NoNewPrivileges=yes
+      PrivateTmp=yes
+      ProtectSystem=strict
+      ProtectHome=yes
+      ReadWritePaths=/var/lib/headscale /var/run/headscale /mnt/headscale-data
+      AmbientCapabilities=CAP_NET_BIND_SERVICE
+      RuntimeDirectory=headscale
+
+      [Install]
+      WantedBy=multi-user.target
 
   - path: /etc/nginx/sites-available/headscale
     content: |
@@ -99,12 +110,71 @@ write_files:
       }
 
 runcmd:
-  - mkdir -p /opt/headscale/{config,data}
-  - cd /opt/headscale && docker-compose up -d
+  # Mount the persistent volume
+  - sleep 10  # Wait for volume to be attached
+  - mkfs.ext4 -F /dev/disk/by-id/scsi-0DO_Volume_headscale-data || true  # Only format if not already formatted
+  - mkdir -p /mnt/headscale-data
+  - mount /dev/disk/by-id/scsi-0DO_Volume_headscale-data /mnt/headscale-data
+  - echo '/dev/disk/by-id/scsi-0DO_Volume_headscale-data /mnt/headscale-data ext4 defaults,nofail,discard 0 2' >> /etc/fstab
+  
+  # Create headscale user and directories
+  - useradd --system --shell /bin/false --home-dir /mnt/headscale-data/lib headscale || true  # Don't fail if user exists
+  - mkdir -p /mnt/headscale-data/lib /mnt/headscale-data/etc /var/run/headscale /etc/headscale
+  - ln -sf /mnt/headscale-data/lib /var/lib/headscale  # Symlink for standard path
+  - chown -R headscale:headscale /mnt/headscale-data/lib /var/run/headscale
+  - chmod 755 /mnt/headscale-data/lib /var/run/headscale
+  
+  # Download and install headscale binary (direct binary download)
+  - |
+    cd /tmp
+    rm -f headscale
+    LATEST_VERSION=$(curl -s https://api.github.com/repos/juanfont/headscale/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    echo "Downloading Headscale version: $${LATEST_VERSION}"
+    # Try the correct URL format (remove 'v' prefix from version in filename)
+    VERSION_NO_V=$${LATEST_VERSION#v}
+    wget -O headscale "https://github.com/juanfont/headscale/releases/download/$${LATEST_VERSION}/headscale_$${VERSION_NO_V}_linux_amd64"
+    # Verify download was successful
+    if [ -s headscale ]; then
+      file headscale  # Check it's a valid binary
+      mv headscale /usr/local/bin/headscale
+      chmod +x /usr/local/bin/headscale
+      echo "Headscale binary installed successfully"
+    else
+      echo "ERROR: Headscale download failed - trying fallback method"
+      # Fallback: try to get the actual download URL from the API
+      DOWNLOAD_URL=$(curl -s https://api.github.com/repos/juanfont/headscale/releases/latest | grep "browser_download_url.*linux_amd64" | cut -d '"' -f 4)
+      if [ ! -z "$DOWNLOAD_URL" ]; then
+        echo "Trying fallback URL: $DOWNLOAD_URL"
+        wget -O headscale "$DOWNLOAD_URL"
+        if [ -s headscale ]; then
+          file headscale
+          mv headscale /usr/local/bin/headscale
+          chmod +x /usr/local/bin/headscale
+          echo "Headscale binary installed successfully via fallback"
+        else
+          echo "ERROR: All download methods failed"
+          exit 1
+        fi
+      else
+        echo "ERROR: Could not determine download URL"
+        exit 1
+      fi
+    fi
+  
+  # Verify headscale binary works
+  - /usr/local/bin/headscale version
+  
+  # Start and enable headscale service
+  - systemctl daemon-reload
+  - systemctl enable headscale
+  - systemctl start headscale
+  - sleep 5  # Wait a moment
+  - systemctl status headscale --no-pager
+  
+  # Configure nginx
   - ln -s /etc/nginx/sites-available/headscale /etc/nginx/sites-enabled/
   - systemctl reload nginx
   - certbot --nginx --non-interactive --agree-tos --email admin@rriv.org -d ${domain}
-  - systemctl enable docker
   - systemctl enable nginx
   # Configure exit node functionality
   - echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
@@ -112,16 +182,69 @@ runcmd:
   - sysctl -p
   # Configure iptables for NAT (exit node functionality)
   - iptables -t nat -A POSTROUTING -s 100.64.0.0/10 -o eth0 -j MASQUERADE
-  - iptables -A FORWARD -i tailscale0 -j ACCEPT
-  - iptables -A FORWARD -o tailscale0 -j ACCEPT
+  - iptables -A FORWARD -s 100.64.0.0/10 -j ACCEPT
+  - iptables -A FORWARD -d 100.64.0.0/10 -j ACCEPT
+  # Allow forwarding from any tailscale interface (they can have different names)
+  - iptables -A FORWARD -i tailscale+ -j ACCEPT
+  - iptables -A FORWARD -o tailscale+ -j ACCEPT
   # Save iptables rules
-  - apt-get install -y iptables-persistent
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
   - iptables-save > /etc/iptables/rules.v4
+  
+  # Create a script to ensure exit routes are enabled on boot
+  - |
+    cat > /usr/local/bin/enable-headscale-exit-routes.sh << 'EOF'
+    #!/bin/bash
+    # Wait for headscale to be ready
+    sleep 30
+    # Enable exit routes for node 1 (headscale-server)
+    /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0" 2>/dev/null || true
+    EOF
+  - chmod +x /usr/local/bin/enable-headscale-exit-routes.sh
   # Install Tailscale on the server to act as exit node
   - curl -fsSL https://tailscale.com/install.sh | sh
+  - systemctl enable tailscaled
+  - systemctl start tailscaled
+  - sleep 10  # Wait for tailscaled to start
+  - which tailscale  # Verify installation
+  - tailscale version
   - sleep 30  # Wait for Headscale to be ready
   # Connect server to its own Headscale network as exit node
   - tailscale up --login-server https://${domain} --advertise-exit-node --hostname headscale-server
+  # Auto-approve exit routes for the headscale server
+  - sleep 60  # Wait for the node to register
+  - /usr/local/bin/headscale nodes routes list
+  - /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0"
+  # Create script to auto-enable exit routes on boot
+  - |
+    cat > /usr/local/bin/enable-exit-routes.sh << 'SCRIPT'
+    #!/bin/bash
+    sleep 120  # Wait for services to be ready
+    /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0"
+    SCRIPT
+  - chmod +x /usr/local/bin/enable-exit-routes.sh
+  # Create systemd service for auto-enabling exit routes on boot
+  - |
+    cat > /etc/systemd/system/headscale-exit-routes.service << 'EOF'
+    [Unit]
+    Description=Auto-enable Headscale exit routes
+    After=headscale.service network-online.target
+    Wants=headscale.service network-online.target
+
+    [Service]
+    Type=oneshot
+    ExecStart=/usr/local/bin/enable-exit-routes.sh
+    RemainAfterExit=yes
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+  - systemctl daemon-reload
+  - systemctl enable headscale-exit-routes
+  
+  # Wait for the server to register and enable exit routes
+  - sleep 10
+  - /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0" || true
   # Fix SSL config to include WebSocket support after certbot
   - |
     cat > /etc/nginx/sites-available/headscale << 'EOF'

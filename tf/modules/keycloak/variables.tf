@@ -12,3 +12,9 @@ variable "smtp_password" {
   description = "SMTP password for Keycloak email configuration."
   type        = string
 }
+
+variable "domain" {
+  description = "The domain for rriv"
+  type        = string
+  default     = "rriv.org"
+}

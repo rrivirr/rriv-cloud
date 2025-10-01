@@ -1,31 +1,30 @@
-resource "keycloak_openid_client" "tailscale" {
+resource "keycloak_openid_client" "rrivctl" {
   realm_id            = keycloak_realm.rriv_beta.id
-  client_id           = "tailscale"
-  name                = "Tailscale VPN"
+  client_id           = "rrivctl"
+  name                = "$${client_account}"
   enabled             = true
-  client_secret       = "auto-generate-or-set-manually"
-  access_type         = "CONFIDENTIAL"
+  access_type         = "PUBLIC"
   standard_flow_enabled = true
-  direct_access_grants_enabled = false
+  direct_access_grants_enabled = true
+  full_scope_allowed = false
 
   valid_redirect_uris = [
-    "https://login.tailscale.com/a/oauth_callback"
+    "${local.rrivctl_redirect_relative_uri}/*",
+    "/oidc/callback"
   ]
 
-  base_url                     = "https://login.tailscale.com"
-  admin_url                    = "https://login.tailscale.com"
-  # client_secret                = var.tailscale_client_secret
+  base_url = "https://${local.rrivctl_subdomain}.${var.domain}"
 }
 
-resource "keycloak_openid_user_attribute_protocol_mapper" "preferred_username" {
-  name             = "preferred_username"
-  realm_id         = keycloak_realm.rriv_beta.id
-  client_id        = keycloak_openid_client.tailscale.id
-  user_attribute   = "username"
-  claim_name       = "preferred_username"
-  claim_value_type = "String"
+# # Prod-only module
+module "headscale_openid_client" {
+  count = var.env == "dev" ? 1 : 0
 
-  add_to_id_token     = true
-  add_to_access_token = true
-  add_to_userinfo     = true
+  providers = {
+    keycloak = keycloak
+  }
+
+  source = "./modules/headscale-client"
+  realm_id = keycloak_realm.rriv_beta.id
+  domain = var.domain
 }

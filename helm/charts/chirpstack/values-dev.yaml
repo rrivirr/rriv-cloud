@@ -3,14 +3,3 @@ vaultSubdomain: vault.dev
 channelPlans: 
   - "us915-1"
   - "us915-2"
-
-certificate:
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  dnsNames:
-    - "*.dev.rriv.org"
-
-ingress:
-  secretName: rriv-dev-tls
-  hosts:

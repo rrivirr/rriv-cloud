@@ -1,0 +1,11 @@
+environment: staging
+vaultSubdomain: vault.prod
+channelPlans: 
+  - "us915-1"
+  - "us915-2"
+  - "us915-3"
+  - "us915-4"
+  - "us915-5"
+  - "us915-6"
+  - "us915-7"
+  - "us915-8"

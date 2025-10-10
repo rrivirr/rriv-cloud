@@ -1,2 +1,4 @@
 environment: staging
 vaultSubdomain: vault.staging
+channelPlans: 
+  - "us915-1"

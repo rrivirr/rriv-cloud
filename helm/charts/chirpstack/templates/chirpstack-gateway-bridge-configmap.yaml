@@ -1,3 +1,5 @@
+{{- range .Values.channelPlans }}
+---
 apiVersion: v1
 data:
   chirpstack-gateway-bridge.toml: |
@@ -14,5 +16,6 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    app: chirpstack-gateway-bridge
-  name: chirpstack-gateway-bridge-cm0
+    app: chirpstack-gateway-bridge-{{ . }}
+  name: chirpstack-gateway-bridge-cm-{{ . }}
+{{- end }}

@@ -1,11 +1,11 @@
+{{- range .Values.channelPlans }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    service.beta.kubernetes.io/do-loadbalancer-name: "chirpstack-gateway-bridge-{{ .Values.environment }}"
   labels:
-    app: chirpstack-gateway-bridge
-  name: chirpstack-gateway-bridge
+    app: chirpstack-gateway-bridge-{{ . }}
+  name: chirpstack-gateway-bridge-{{ . }}
 spec:
   ports:
     - name: "1700"
@@ -13,6 +13,7 @@ spec:
       protocol: UDP
       targetPort: 1700
   selector:
-    app: chirpstack-gateway-bridge
-  type: LoadBalancer
+    app: chirpstack-gateway-bridge-{{ . }}
+  type: ClusterIP
+{{- end }}
 

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-bridge-proxy
+  namespace: default
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-name: "gateway-us-{{ .Values.environment }}"
+  labels:
+    app: gateway-bridge-proxy
+spec:
+  type: LoadBalancer
+  selector:
+    app: gateway-bridge-proxy
+  ports:
+{{- range $index, $channelPlan := .Values.channelPlans }}
+  - name: udp-{{ add 1701 $index }}
+    port: {{ add 1701 $index }}
+    targetPort: {{ add 1701 $index }}
+    protocol: UDP
+{{- end }}

@@ -79,6 +79,11 @@ Before you From the root directory: `helmfile -e dev apply`
 ## Chirpstack k8s
 The k8s files were generated from [this](https://github.com/chirpstack/chirpstack-docker) chirpstack-docker project.
 
+The Chirpstack Gateway Bridge receives packets from LoRaWAN devices in the field. Currently we are hardcoded to a single channel plan, us915_1. In order to use multiple channel plans, we need to run separate gateway bridges with their own ClusterIp services, and route to them behind an nginx loadbalancer.
+
+### Credentials
+Admin credentials are stored in ProtonPass. Have an admin create an account for you.
+
 ## Vault
 Hashicorp Vault is installed in a separate k8s cluster. To switch over:
 ```

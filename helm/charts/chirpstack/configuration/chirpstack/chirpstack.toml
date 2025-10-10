@@ -4,7 +4,7 @@
   # Log level.
   #
   # Options are: trace, debug, info, warn error.
-  level="info"
+  level="debug"
 
 
 # PostgreSQL configuration.
@@ -65,8 +65,8 @@
   # Multiple regions can be enabled simultaneously. Each region must match
   # the 'name' parameter of the region configuration in '[[regions]]'.
   enabled_regions=[
-    "us915_0",
     "us915_1",
+    "us915_2",
   ]
 
 

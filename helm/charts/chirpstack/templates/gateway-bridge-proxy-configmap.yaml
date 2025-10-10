@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-bridge-proxy-config
+  namespace: default
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    stream {
+        # Error and access logs
+        error_log /var/log/nginx/error.log;
+        # Note: access_log is not supported in stream module
+        
+        # Upstream definitions for each channel plan
+{{- range $index, $channelPlan := .Values.channelPlans }}
+        upstream gateway_bridge_{{ $channelPlan | replace "-" "_" }} {
+            server chirpstack-gateway-bridge-{{ $channelPlan }}.default.svc.cluster.local:1700;
+        }
+{{- end }}
+        
+        # Server blocks for each port
+        # gateway-us.dev.rriv.org:1701 -> us915-1
+        # gateway-us.dev.rriv.org:1702 -> us915-2
+{{- range $index, $channelPlan := .Values.channelPlans }}
+        server {
+            listen {{ add 1701 $index }} udp;
+            proxy_pass gateway_bridge_{{ $channelPlan | replace "-" "_" }};
+            proxy_timeout 1s;
+            proxy_responses 1;
+        }
+{{- end }}
+    }

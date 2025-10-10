@@ -1,11 +1,11 @@
-# This file contains an example US915 example (channels 8-15 + 65).
+# This file contains an example US915 example (channels 0-7 + 64).
 [[regions]]
 
   # ID is an use-defined identifier for this region.
   id="us915_1"
 
   # Description is a short description for this region.
-  description="US915 (channels 8-15 + 65)"
+  description="US915 (channels 0-7 + 64)"
 
   # Common-name refers to the common-name of this region as defined by
   # the LoRa Alliance.
@@ -96,55 +96,55 @@
     # ChirpStack Concentratord daemon. In any other case, this configuration 
     # is ignored.
     [[regions.gateway.channels]]
-      frequency=903900000
+      frequency=902300000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904100000
+      frequency=902500000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904300000
+      frequency=902700000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904500000
+      frequency=902900000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904700000
+      frequency=903100000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904900000
+      frequency=903300000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=905100000
+      frequency=903500000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=905300000
+      frequency=903700000
       bandwidth=125000
       modulation="LORA"
       spreading_factors=[7, 8, 9, 10]
 
     [[regions.gateway.channels]]
-      frequency=904600000
+      frequency=903000000
       bandwidth=500000
       modulation="LORA"
       spreading_factors=[8]
@@ -219,7 +219,7 @@
     # Use this when ony a sub-set of the by default enabled channels are being
     # used. For example when only using the first 8 channels of the US band.
     # Note: when left blank / empty array, all channels will be enabled.
-    enabled_uplink_channels=[8, 9, 10, 11, 12, 13, 14, 15, 65]
+    enabled_uplink_channels=[0, 1, 2, 3, 4, 5, 6, 7, 64]
 
 
     # Rejoin-request configuration (LoRaWAN 1.1)

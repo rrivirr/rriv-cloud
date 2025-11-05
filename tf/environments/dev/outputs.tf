@@ -68,6 +68,11 @@ output "headscale_oidc_client_secret" {
   description = "Client secret for the Headscale service"
 }
 
+output "do_api_key_secret_arn" {
+  value = module.dev_aws_us-west-1_do_api_key.secret_github_actions_do_api_key_arn
+  description = "ARN of the Secrets Manager secret containing the DigitalOcean API key for GitHub Actions"
+}
+
 output "do_dns_api_token" {
   value       = module.dev_k8s_sfo2_vault_cluster_secrets.do_dns_api_token
   sensitive   = true

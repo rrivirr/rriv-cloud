@@ -28,11 +28,11 @@ resource "digitalocean_record" "do_sfo2_chirp_a_record" {
   ttl    = 1800
 }
 
-resource "digitalocean_record" "do_sfo2_chirp_console_a_record" {
+resource "digitalocean_record" "do_sfo2_lorawan_a_record" {
   domain = local.root_domain
-  name   = "chirp-console.${var.env}"
+  name   = "gateway-us915.${var.env}"
   type   = "A"
-  value  = var.chirp_console_lb_ip
+  value  = var.lorawan_lb_ip
   ttl    = 1800
 }
 

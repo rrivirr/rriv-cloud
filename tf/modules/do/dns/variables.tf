@@ -13,8 +13,8 @@ variable "chirp_lb_ip" {
   type        = string
 }
 
-variable "chirp_console_lb_ip" {
-  description = "The load balancer IP address for chirp-console"
+variable "lorawan_lb_ip" {
+  description = "The load balancer IP address for lorawan gateway bridge"
   type        = string
 }
 

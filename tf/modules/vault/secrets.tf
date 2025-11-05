@@ -129,6 +129,23 @@ resource "vault_kv_secret_v2" "vpn_secrets" {
   }
 }
 
+# resource "vault_kv_secret_v2" "smtp_creds" {
+#   mount = vault_mount.app_secrets.path
+#   name  = "${var.env}-vpn-ip"
+
+#   data_json = jsonencode({
+#     vpn_ip = var.vpn_reserved_ip
+#   })
+
+#   custom_metadata {
+#     data = var.kv_secret_tags
+#   }
+
+#   lifecycle {
+#     ignore_changes = [data_json] 
+#   }
+# }
+
 # resource "vault_kv_secret_v2" "image_registry_pull_secret" {
 #   mount = vault_mount.app_secrets.path
 #   name  = "${var.env}-do-registry-image-pull-secret"

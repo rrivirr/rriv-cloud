@@ -110,6 +110,11 @@ variable "data_api_database_url" {
   type        = string
 }
 
+# variable "vpn_reserved_ip" {
+#   description = "The reserved (static) IP address for the Headscale server"
+#   type        = string
+# }
+
 # TODO: include this
 variable "do_registry_auth_token" {
   description = "DigitalOcean Container Registry authentication token"

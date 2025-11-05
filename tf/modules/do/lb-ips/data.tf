@@ -6,8 +6,8 @@ data "digitalocean_loadbalancer" "chirp_lb" {
   name = "chirpstack-${var.env}"
 }
 
-data "digitalocean_loadbalancer" "chirp_console_lb" {
-  name = "chirpstack-gateway-bridge-${var.env}"
+data "digitalocean_loadbalancer" "lorawan_lb" {
+  name = "gateway-us-${var.env}"
 }
 
 data "digitalocean_loadbalancer" "vault_lb" {

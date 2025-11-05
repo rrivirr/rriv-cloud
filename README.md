@@ -23,6 +23,10 @@ We use helm for configuring the k8s clusters. Additionally, the DO infrastructur
 
 AWS is used sparingly. Its main purpose is to act as the guardian of our Vault root token. For this, we have some very basic infrastructure captured in Terraform as well, stored again in DigitalOcean statefiles.
 
+This diagram attempts to show where each piece of infrastructure lives, and where various resources retrieve data/access from.
+
+![rriv network](docs/rriv-network.png)
+
 ## How-Tos
 
 There are a handful of resources that have been set up manually. They are as follows:
@@ -32,10 +36,12 @@ There are a handful of resources that have been set up manually. They are as fol
 
 ### Deployment order
 
-1. TODO: Terraform to set up SSO users and provision the environment accounts from the management account: rriv-dev, etc
-2. Terraform postgres module, keycloak-bootstrap-creds, vault cluster and rriv cluster modules
-3. Helm resources for the Vault cluster
-4. 
+*This section is under construction :)*
+
+1. 00-tf-bootstrap: initial terraform that is applied from within this directory to set up AWS resources that administer the DO resources
+2. TODO: resources in 02-tf need to be moved into the bootstrap directory
+2. 01-helm: Vault and rriv k8s clusters setup
+4. 02-tf: Final terraform to inject secrets in where needed
 
 ### First-time setup
 In order to get set up with k8s, you must first be able to run the terraform. The tf maintains the k8s cluster itself and everything around it. Helm maintains everything inside the cluster.

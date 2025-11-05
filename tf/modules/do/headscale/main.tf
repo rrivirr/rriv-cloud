@@ -3,11 +3,10 @@ resource "digitalocean_ssh_key" "ssh_key_vpn_admin" {
   public_key = var.ssh_key_public
 }
 
-# Create a volume for persistent storage
 resource "digitalocean_volume" "headscale_data" {
   region                  = var.region
   name                    = "headscale-data"
-  size                    = 10  # 10GB should be plenty for Headscale
+  size                    = 10 # GB
   initial_filesystem_type = "ext4"
   description             = "Persistent storage for Headscale VPN server"
 }
@@ -17,21 +16,24 @@ resource "digitalocean_reserved_ip" "headscale" {
 }
 
 resource "digitalocean_droplet" "headscale" {
-  image  = var.droplet_image
+  image  = data.digitalocean_droplet_snapshot.headscale_base_image.id
   name   = "headscale-vpn"
   region = var.region
   size   = var.droplet_size
-  
+
   ssh_keys = [digitalocean_ssh_key.ssh_key_vpn_admin.id]
-  
+
   user_data = templatefile("${path.module}/cloud-init.yaml", {
-    domain = "vpn.rriv.org"
-    base_domain = "tailnet.rriv.org"
-    oidc_issuer = var.oidc_issuer
-    oidc_client_id = var.oidc_client_id
+    domain             = "vpn.rriv.org"
+    base_domain        = "tailnet.rriv.org"
+    oidc_issuer        = var.oidc_issuer
+    oidc_client_id     = var.oidc_client_id
     oidc_client_secret = var.oidc_client_secret
+    admin_email        = var.admin_email
+    admin_ip           = var.admin_ip
+    gated_services     = var.gated_services
   })
-  
+
   tags = ["headscale", "vpn", "management"]
 }
 
@@ -45,6 +47,12 @@ resource "digitalocean_record" "headscale" {
   type   = "A"
   name   = "vpn"
   value  = digitalocean_reserved_ip.headscale.ip_address
+
+  lifecycle {
+    replace_triggered_by = [
+      digitalocean_reserved_ip.headscale.ip_address
+    ]
+  }
 }
 
 resource "digitalocean_record" "tailnet" {
@@ -52,6 +60,12 @@ resource "digitalocean_record" "tailnet" {
   type   = "A"
   name   = "tailnet"
   value  = digitalocean_reserved_ip.headscale.ip_address
+
+  lifecycle {
+    replace_triggered_by = [
+      digitalocean_reserved_ip.headscale.ip_address
+    ]
+  }
 }
 
 resource "digitalocean_record" "tailnet_wildcard" {
@@ -59,6 +73,12 @@ resource "digitalocean_record" "tailnet_wildcard" {
   type   = "A"
   name   = "*.tailnet"
   value  = digitalocean_reserved_ip.headscale.ip_address
+
+  lifecycle {
+    replace_triggered_by = [
+      digitalocean_reserved_ip.headscale.ip_address
+    ]
+  }
 }
 
 resource "digitalocean_firewall" "headscale" {
@@ -69,7 +89,7 @@ resource "digitalocean_firewall" "headscale" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["${var.admin_ip}/32"] # Replace with your IP
+    source_addresses = ["${var.admin_ip}/32"]
   }
   
   inbound_rule {

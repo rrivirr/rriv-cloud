@@ -23,4 +23,4 @@ Why are we doing this? This gives the management account permission to look in e
 
 This repo should be applied **only after** Helm has been applied (i.e., run `helmfile apply` from the helm directory). The loadbalancers for each environment need to exist in order for this to work. 
 
-It also must be run **after** the prod Keycloak module. The Keycloak module creates an OIDC client id and secret that headscale needs.You will have to copy-pasta these values into your secrets file outside of this repo.
+It also must be run **after** the prod Keycloak module. The Keycloak module creates an OIDC client id and secret that headscale needs. You will have to copy-pasta these values into your secrets file outside of this repo.

@@ -1,0 +1,1 @@
+The VPN image is maintained in the rriv-vpn repo.

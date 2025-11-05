@@ -1,282 +1,197 @@
 #cloud-config
-package_update: true
-package_upgrade: true
+package_update: false
+package_upgrade: false
 
-packages:
-  - nginx
-  - certbot
-  - python3-certbot-nginx
-  - sqlite3
-
+# Set variables that can be templated
 write_files:
-  - path: /etc/headscale/config.yaml
+  - path: /etc/headscale/config-override.yaml
     content: |
       server_url: https://${domain}
-      listen_addr: 0.0.0.0:8080
-      
       oidc:
         issuer: "${oidc_issuer}"
         client_id: "${oidc_client_id}"
         client_secret: "${oidc_client_secret}"
-        scope: ["openid", "profile", "email"]
-      
-      noise:
-        private_key_path: /mnt/headscale-data/lib/noise_private.key
-      
-      prefixes:
-        v4: 100.64.0.0/10
-        v6: fd7a:115c:a1e0::/48
-      
-      derp:
-        server:
-          enabled: false
-        urls:
-          - https://controlplane.tailscale.com/derpmap/default
-        auto_update_enabled: true
-        update_frequency: 24h
-      
       dns:
-        override_local_dns: true
-        magic_dns: true
         base_domain: ${base_domain}
-        nameservers:
-          global:
-            - 1.1.1.1
-            - 8.8.8.8
-      
-      database:
-        type: sqlite
-        sqlite:
-          path: /mnt/headscale-data/lib/db.sqlite
-      
-      # Enable Tailscale SSH (users can SSH via their Tailscale identity)
-      ssh:
-        policy:
-          - action: accept
-            src: ["group:admins"]
-            dst: ["tag:infrastructure"]
-            users: ["root", "ubuntu"]
-      
-      log:
-        level: info
+        extra_records:
+%{ for service in gated_services ~}
+          - name: "${service.dns}"
+            type: "A"
+            value: "100.64.0.1"
+%{ endfor ~}
+    owner: headscale:headscale
+    permissions: '0640'
 
-  - path: /etc/systemd/system/headscale.service
-    content: |
-      [Unit]
-      Description=headscale controller
-      After=syslog.target
-      After=network.target
-
-      [Service]
-      Type=simple
-      User=headscale
-      Group=headscale
-      ExecStart=/usr/local/bin/headscale serve
-      Restart=always
-      RestartSec=5
-
-      # Optional security enhancements
-      NoNewPrivileges=yes
-      PrivateTmp=yes
-      ProtectSystem=strict
-      ProtectHome=yes
-      ReadWritePaths=/var/lib/headscale /var/run/headscale /mnt/headscale-data
-      AmbientCapabilities=CAP_NET_BIND_SERVICE
-      RuntimeDirectory=headscale
-
-      [Install]
-      WantedBy=multi-user.target
-
-  - path: /etc/nginx/sites-available/headscale
+%{ for service in gated_services ~}
+  - path: /etc/nginx/sites-available/${replace(service.dns, ".", "-")}
     content: |
       server {
           listen 80;
-          server_name ${domain};
+          listen [::]:80;
+          server_name ${service.dns};
+          return 301 https://$$server_name$$request_uri;
+      }
+      
+      server {
+          listen 443 ssl http2;
+          listen [::]:443 ssl http2;
+          server_name ${service.dns};
+          
+          ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+          ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
           
           location / {
-              proxy_pass http://localhost:8080;
-              proxy_set_header Host $host;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_pass https://${service.ip == "100.64.0.1" ? "161.35.240.236" : service.ip};
+              proxy_ssl_verify off;
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              proxy_set_header X-VPN-Client true;
               
-              # WebSocket support for Tailscale
-              proxy_http_version 1.1;
-              proxy_set_header Upgrade $http_upgrade;
-              proxy_set_header Connection "upgrade";
-              proxy_read_timeout 86400;
-              proxy_send_timeout 86400;
+              # Health check
+              proxy_connect_timeout 30s;
+              proxy_send_timeout 30s;
+              proxy_read_timeout 30s;
+          }
+          
+          location /health {
+              access_log off;
+              return 200 "healthy\n";
+              add_header Content-Type text/plain;
           }
       }
+    owner: root:root
+    permissions: '0644'
+%{ endfor ~}
+
+  - path: /usr/local/bin/certbot-nginx-retry.sh
+    content: |
+      #!/bin/bash
+      domain="$$1"
+      email="$$2"
+      retries=5
+      delay=60
+      
+      for i in $$(seq 1 $$retries); do
+          echo "Attempting SSL certificate for $$domain (attempt $$i/$$retries)"
+          
+          # Check if certificate already exists
+          if [ -f "/etc/letsencrypt/live/$$domain/fullchain.pem" ]; then
+              echo "Certificate for $$domain already exists"
+              return 0
+          fi
+          
+          # Attempt to get certificate
+          if certbot --nginx -d "$$domain" --non-interactive --agree-tos --email "$$email" --redirect; then
+              echo "Successfully obtained certificate for $$domain"
+              return 0
+          else
+              echo "Failed to obtain certificate for $$domain (attempt $$i/$$retries)"
+              if [ $$i -lt $$retries ]; then
+                  echo "Waiting $$delay seconds before retry..."
+                  sleep $$delay
+              fi
+          fi
+      done
+      
+      echo "Failed to obtain certificate for $$domain after $$retries attempts"
+      return 1
+    owner: root:root
+    permissions: '0755'
 
 runcmd:
-  # Mount the persistent volume
-  - sleep 10  # Wait for volume to be attached
-  - mkfs.ext4 -F /dev/disk/by-id/scsi-0DO_Volume_headscale-data || true  # Only format if not already formatted
-  - mkdir -p /mnt/headscale-data
-  - mount /dev/disk/by-id/scsi-0DO_Volume_headscale-data /mnt/headscale-data
-  - echo '/dev/disk/by-id/scsi-0DO_Volume_headscale-data /mnt/headscale-data ext4 defaults,nofail,discard 0 2' >> /etc/fstab
+  - echo "Starting cloud-init configuration..." >> /var/log/cloud-init-debug.log
   
-  # Create headscale user and directories
-  - useradd --system --shell /bin/false --home-dir /mnt/headscale-data/lib headscale || true  # Don't fail if user exists
-  - mkdir -p /mnt/headscale-data/lib /mnt/headscale-data/etc /var/run/headscale /etc/headscale
-  - ln -sf /mnt/headscale-data/lib /var/lib/headscale  # Symlink for standard path
-  - chown -R headscale:headscale /mnt/headscale-data/lib /var/run/headscale
-  - chmod 755 /mnt/headscale-data/lib /var/run/headscale
+  # Disable systemd-resolved to free up port 53 for Headscale DNS
+  - echo "=== Disabling systemd-resolved ===" >> /var/log/cloud-init-debug.log
+  - systemctl stop systemd-resolved >> /var/log/cloud-init-debug.log 2>&1
+  - systemctl disable systemd-resolved >> /var/log/cloud-init-debug.log 2>&1
+  - rm -f /etc/resolv.conf
+  - echo -e "# Static DNS configuration for Headscale server\nnameserver 8.8.8.8\nnameserver 8.8.4.4\nnameserver 1.1.1.1\nsearch localdomain" > /etc/resolv.conf
+  - chattr +i /etc/resolv.conf
+  - echo "systemd-resolved disabled, port 53 freed for Headscale" >> /var/log/cloud-init-debug.log
+  - ss -tulpn | grep :53 >> /var/log/cloud-init-debug.log 2>&1 || echo "Port 53 is now free" >> /var/log/cloud-init-debug.log
   
-  # Download and install headscale binary (direct binary download)
+  # Mount volume and set up symlinks
+  - /usr/local/bin/mount-headscale-volume.sh >> /var/log/cloud-init-debug.log 2>&1
+  
+  # Debug: Check if override config was written
+  - echo "=== Checking config override ===" >> /var/log/cloud-init-debug.log
+  - ls -la /etc/headscale/config-override.yaml >> /var/log/cloud-init-debug.log 2>&1 || echo "Override config not found" >> /var/log/cloud-init-debug.log
+  - cat /etc/headscale/config-override.yaml >> /var/log/cloud-init-debug.log 2>&1 || echo "Could not read override config" >> /var/log/cloud-init-debug.log
+  
+  # Debug: Check port 53 availability
+  - echo "=== Checking port 53 availability ===" >> /var/log/cloud-init-debug.log
+  - ss -tulpn | grep :53 >> /var/log/cloud-init-debug.log 2>&1 || echo "No process listening on port 53" >> /var/log/cloud-init-debug.log
+  
+  # Merge the override config with the base config using yq
   - |
-    cd /tmp
-    rm -f headscale
-    LATEST_VERSION=$(curl -s https://api.github.com/repos/juanfont/headscale/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-    echo "Downloading Headscale version: $${LATEST_VERSION}"
-    # Try the correct URL format (remove 'v' prefix from version in filename)
-    VERSION_NO_V=$${LATEST_VERSION#v}
-    wget -O headscale "https://github.com/juanfont/headscale/releases/download/$${LATEST_VERSION}/headscale_$${VERSION_NO_V}_linux_amd64"
-    # Verify download was successful
-    if [ -s headscale ]; then
-      file headscale  # Check it's a valid binary
-      mv headscale /usr/local/bin/headscale
-      chmod +x /usr/local/bin/headscale
-      echo "Headscale binary installed successfully"
-    else
-      echo "ERROR: Headscale download failed - trying fallback method"
-      # Fallback: try to get the actual download URL from the API
-      DOWNLOAD_URL=$(curl -s https://api.github.com/repos/juanfont/headscale/releases/latest | grep "browser_download_url.*linux_amd64" | cut -d '"' -f 4)
-      if [ ! -z "$DOWNLOAD_URL" ]; then
-        echo "Trying fallback URL: $DOWNLOAD_URL"
-        wget -O headscale "$DOWNLOAD_URL"
-        if [ -s headscale ]; then
-          file headscale
-          mv headscale /usr/local/bin/headscale
-          chmod +x /usr/local/bin/headscale
-          echo "Headscale binary installed successfully via fallback"
-        else
-          echo "ERROR: All download methods failed"
-          exit 1
-        fi
-      else
-        echo "ERROR: Could not determine download URL"
-        exit 1
+    if [ -f /etc/headscale/config-override.yaml ]; then
+      # Install yq if not present
+      if ! command -v yq &> /dev/null; then
+        wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        chmod +x /usr/local/bin/yq
       fi
+      
+      # Backup original config
+      cp /etc/headscale/config.yaml /etc/headscale/config.yaml.bak
+      
+      # Merge the configs properly
+      yq eval-all '. as $$item ireduce ({}; . *+ $$item)' /etc/headscale/config.yaml /etc/headscale/config-override.yaml > /etc/headscale/config-merged.yaml
+      mv /etc/headscale/config-merged.yaml /etc/headscale/config.yaml
+      
+      chown headscale:headscale /etc/headscale/config.yaml
+      
+      # Debug: show the final DNS config
+      echo "=== Final DNS config ===" >> /var/log/cloud-init-debug.log
+      yq eval '.dns' /etc/headscale/config.yaml >> /var/log/cloud-init-debug.log 2>&1
     fi
   
-  # Verify headscale binary works
-  - /usr/local/bin/headscale version
+  # Start services (they're already enabled by Packer)
+  - systemctl daemon-reload >> /var/log/cloud-init-debug.log 2>&1
+  - systemctl start headscale >> /var/log/cloud-init-debug.log 2>&1
+  - systemctl start nginx >> /var/log/cloud-init-debug.log 2>&1
   
-  # Start and enable headscale service
-  - systemctl daemon-reload
-  - systemctl enable headscale
-  - systemctl start headscale
-  - sleep 5  # Wait a moment
-  - systemctl status headscale --no-pager
+  # Wait for services to start
+  - sleep 5
   
-  # Configure nginx
-  - ln -s /etc/nginx/sites-available/headscale /etc/nginx/sites-enabled/
-  - systemctl reload nginx
-  - certbot --nginx --non-interactive --agree-tos --email admin@rriv.org -d ${domain}
-  - systemctl enable nginx
-  # Configure exit node functionality
-  - echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
-  - echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.conf
-  - sysctl -p
-  # Configure iptables for NAT (exit node functionality)
-  - iptables -t nat -A POSTROUTING -s 100.64.0.0/10 -o eth0 -j MASQUERADE
-  - iptables -A FORWARD -s 100.64.0.0/10 -j ACCEPT
-  - iptables -A FORWARD -d 100.64.0.0/10 -j ACCEPT
-  # Allow forwarding from any tailscale interface (they can have different names)
-  - iptables -A FORWARD -i tailscale+ -j ACCEPT
-  - iptables -A FORWARD -o tailscale+ -j ACCEPT
-  # Save iptables rules
-  - DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
-  - iptables-save > /etc/iptables/rules.v4
+  # Configure firewall using the Packer-provided script
+  - ADMIN_IP=${admin_ip} /usr/local/bin/enable-ufw-tailnet.sh >> /var/log/cloud-init-debug.log 2>&1 || true
   
-  # Create a script to ensure exit routes are enabled on boot
+  # Set up SSL certificate for Headscale
+  - /usr/local/bin/certbot-nginx-retry.sh ${domain} ${admin_email} >> /var/log/cloud-init-debug.log 2>&1 || true
+  - systemctl reload nginx >> /var/log/cloud-init-debug.log 2>&1 || true
+  
+  # Configure nginx proxy sites for gated services
+  - echo "=== Configuring nginx proxy sites ===" >> /var/log/cloud-init-debug.log
+%{ for service in gated_services ~}
+  - ln -sf /etc/nginx/sites-available/${replace(service.dns, ".", "-")} /etc/nginx/sites-enabled/
+  - echo "Enabled proxy site for ${service.dns}" >> /var/log/cloud-init-debug.log
+  - /usr/local/bin/certbot-nginx-retry.sh ${service.dns} ${admin_email} >> /var/log/cloud-init-debug.log 2>&1 || true
+%{ endfor ~}
+  
+  # Test and reload nginx
+  - nginx -t >> /var/log/cloud-init-debug.log 2>&1
   - |
-    cat > /usr/local/bin/enable-headscale-exit-routes.sh << 'EOF'
-    #!/bin/bash
-    # Wait for headscale to be ready
-    sleep 30
-    # Enable exit routes for node 1 (headscale-server)
-    /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0" 2>/dev/null || true
-    EOF
-  - chmod +x /usr/local/bin/enable-headscale-exit-routes.sh
-  # Install Tailscale on the server to act as exit node
-  - curl -fsSL https://tailscale.com/install.sh | sh
-  - systemctl enable tailscaled
-  - systemctl start tailscaled
-  - sleep 10  # Wait for tailscaled to start
-  - which tailscale  # Verify installation
-  - tailscale version
-  - sleep 30  # Wait for Headscale to be ready
-  # Connect server to its own Headscale network as exit node
-  - tailscale up --login-server https://${domain} --advertise-exit-node --hostname headscale-server
-  # Auto-approve exit routes for the headscale server
-  - sleep 60  # Wait for the node to register
-  - /usr/local/bin/headscale nodes routes list
-  - /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0"
-  # Create script to auto-enable exit routes on boot
-  - |
-    cat > /usr/local/bin/enable-exit-routes.sh << 'SCRIPT'
-    #!/bin/bash
-    sleep 120  # Wait for services to be ready
-    /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0"
-    SCRIPT
-  - chmod +x /usr/local/bin/enable-exit-routes.sh
-  # Create systemd service for auto-enabling exit routes on boot
-  - |
-    cat > /etc/systemd/system/headscale-exit-routes.service << 'EOF'
-    [Unit]
-    Description=Auto-enable Headscale exit routes
-    After=headscale.service network-online.target
-    Wants=headscale.service network-online.target
-
-    [Service]
-    Type=oneshot
-    ExecStart=/usr/local/bin/enable-exit-routes.sh
-    RemainAfterExit=yes
-
-    [Install]
-    WantedBy=multi-user.target
-    EOF
-  - systemctl daemon-reload
-  - systemctl enable headscale-exit-routes
+    if [ $$? -eq 0 ]; then
+        systemctl reload nginx >> /var/log/cloud-init-debug.log 2>&1
+        echo "All proxy sites configured successfully" >> /var/log/cloud-init-debug.log
+    else
+        echo "ERROR: Nginx configuration test failed" >> /var/log/cloud-init-debug.log
+    fi
   
-  # Wait for the server to register and enable exit routes
+  # Final status check
+  - echo "=== Final status ===" >> /var/log/cloud-init-debug.log
+  - systemctl status headscale --no-pager >> /var/log/cloud-init-debug.log 2>&1 || true
+  - systemctl status nginx --no-pager >> /var/log/cloud-init-debug.log 2>&1 || true
+  - ufw status >> /var/log/cloud-init-debug.log 2>&1 || true
+  
+  # Debug: Test Headscale DNS
+  - echo "=== Testing Headscale DNS ===" >> /var/log/cloud-init-debug.log
   - sleep 10
-  - /usr/local/bin/headscale nodes approve-routes -i 1 --routes="0.0.0.0/0,::/0" || true
-  # Fix SSL config to include WebSocket support after certbot
-  - |
-    cat > /etc/nginx/sites-available/headscale << 'EOF'
-    server {
-        listen 80;
-        server_name ${domain};
-        return 301 https://$server_name$request_uri;
-    }
-    
-    server {
-        listen 443 ssl http2;
-        server_name ${domain};
-        
-        ssl_certificate /etc/letsencrypt/live/${domain}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/${domain}/privkey.pem;
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-        
-        location / {
-            proxy_pass http://localhost:8080;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            
-            # WebSocket support for Tailscale
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_read_timeout 86400;
-            proxy_send_timeout 86400;
-        }
-    }
-    EOF
-  - nginx -t && systemctl reload nginx
+  - ss -tulpn | grep :53 >> /var/log/cloud-init-debug.log 2>&1 || echo "No DNS service running" >> /var/log/cloud-init-debug.log
+  - journalctl -u headscale --no-pager -n 20 >> /var/log/cloud-init-debug.log 2>&1 || true
+  
+  # Ensure cloud-init is complete
+  - echo "Cloud-init configuration completed at $$(date)" >> /var/log/cloud-init-debug.log

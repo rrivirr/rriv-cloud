@@ -56,7 +56,7 @@ module "staging_aws_us-west-1_do_api_key" {
   }
 
   env = local.env
-  do_api_key = var.do_token
+  do_dns_api_key = var.do_token
   do_github_actions_api_key = var.do_github_actions_api_key
   vault_iam_user_name = module.staging_aws_us-west-1_vault.vault_iam_user_name
 
@@ -91,6 +91,7 @@ module "staging_do_sfo2_k8s_vault_cluster" {
   do_region                  = local.do_region
   node_count                 = local.vault_cluster_node_count
   vpc_id                     = module.staging_do_sfo2_vpc.vpc_id
+  k8s_version                = "1.33.1-do.5"
 
   depends_on = [
     module.staging_do_sfo2_vpc,
@@ -111,6 +112,8 @@ module "staging_do_sfo2_k8s_rriv_cluster" {
   node_count   = local.rriv_cluster_node_count
   node_size    = "s-2vcpu-4gb"
   vpc_id       = module.staging_do_sfo2_vpc.vpc_id
+  k8s_version  = "1.33.1-do.5"
+
   depends_on = [
     module.staging_do_sfo2_vpc,
     module.staging_do_sfo2_k8s_vault_cluster
@@ -132,6 +135,7 @@ module "staging_helm_setup" {
 ## THIS IS THE POINT AT WHICH HELM MUST BE APPLIED ##
 #####################################################
 
+# TODO: This module actually might need to be applied before helm can finish
 module "staging_k8s_sfo2_vault_cluster_secrets" {
   source = "../../modules/k8s/vault-cluster-secrets"
   providers = {

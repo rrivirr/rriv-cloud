@@ -79,6 +79,6 @@ provider "vault" {
 provider "keycloak" {
   alias         = "dev-sfo2-keycloak"
   client_id     = "terraform"
-  client_secret = var.keycloak_client_secret # Create this from Keycloak admin console upon initial login
+  client_secret = var.keycloak_client_secret
   url           = "https://auth.${local.env}.rriv.org"
 }

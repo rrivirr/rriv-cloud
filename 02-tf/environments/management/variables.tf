@@ -8,6 +8,11 @@ variable "dev_do_token" {
   description = "DigitalOcean API token for the dev environment"
 }
 
+variable "staging_do_token" {
+  type        = string
+  description = "DigitalOcean API token for the staging environment"
+}
+
 variable "ssh_admin_ip" {
   description = "Admin IP address for SSH access to the droplets"
   type        = string

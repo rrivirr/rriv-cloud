@@ -29,26 +29,29 @@ This diagram attempts to show where each piece of infrastructure lives, and wher
 
 ## How-Tos
 
-There are a handful of resources that have been set up manually. They are as follows:
-- AWS S3 bucket in the `rriv` (management) account
-- DO S3 bucket in each of the dev, staging, and prod team accounts
-- DO S3 bucket access key with read/write/delete on the above S3 bucket (limited scope)
+There are a handful of resources that have been set up manually. If you are setting up your own project, you will need to create these yourself in your own cloud provider accounts:
+- An infrastructure management AWS account (ours is named `rriv`)
+- AWS S3 bucket in the `rriv` account for the initial AWS Terraform statefile (see `./00-tf-bootstrap/account-setup/backend.hcl.example`)
+- 4 DO Teams linked to the same organization: `rriv-management`, `rriv-dev`, `rriv-staging`, `rriv-prod`
+- DO S3 bucket in each of the dev, staging, and prod team accounts - for storing the Terraform statefiles - see the `backend.hcl.example` files in each environment in ./02-tf/environments
+- DO S3 bucket access key with read/write/delete on the above S3 buckets (limited scope, and unable to be created with Terraform)
 
 ### Deployment order
 
 *This section is under construction :)*
 
-1. 00-tf-bootstrap: initial terraform that is applied from within this directory to set up AWS resources that administer the DO resources
+1. `00-tf-bootstrap`: initial terraform that is applied from within this directory to set up AWS resources that then administer the DO resources
 2. TODO: resources in 02-tf need to be moved into the bootstrap directory
-2. 01-helm: Vault and rriv k8s clusters setup
-4. 02-tf: Final terraform to inject secrets in where needed
+3. `01-helm`: Vault and rriv k8s clusters setup
+4. Unseal the Vault clusters in the various environments
+5. `02-tf`: Final terraform to create the remaining resources, including DNS and Vault secrets. You must begin with `environments/management/`, then do `dev`, etc.
 
 ### First-time setup
 In order to get set up with k8s, you must first be able to run the terraform. The tf maintains the k8s cluster itself and everything around it. Helm maintains everything inside the cluster.
 
 1. Open the `.zshrc.example` file and follow the instructions.
 2. See the section below on "Applying Terraform changes". The secret tfvars and backend.hcl must be set up.
-3. Read below to get authenticated into DigitalOcean. Before you can run kubectl commands, run a `terraform refresh` to generate the kubeconfig files from each environment directory (`./tf/environments/..`.)
+3. Read below to get authenticated into DigitalOcean. Before you can run kubectl commands, run a `terraform refresh` to generate the kubeconfig files from each environment directory (`./02-tf/environments/..`.)
 
 
 ### Applying Terraform changes
@@ -63,7 +66,7 @@ You will need to set up the following files (copy and alter the `.example` files
 - **DO bucket & key:** Get these from a project admin.
 - **DO access key & secret key:** Create an access key in the [Access Keys](https://cloud.digitalocean.com/spaces/access_keys) section of the Spaces Object Storage in DO. Save this in your Proton Pass personal vault.
 
-To apply Terraform changes, cd into the environment directory (`./tf/environments/...`) and run your terraform command from here. When you run `terraform init`, you must pass in `-backend-config=backend-$ENV.hcl`.
+To apply Terraform changes, cd into the environment directory (`./02-tf/environments/...`) and run your terraform command from here. It is important that you begin with the `management` environment, in order to populate DNS from the loadbalancers that helm already created. When you run `terraform init`, you must pass in `-backend-config=backend-$ENV.hcl`. 
 
 #### Debugging "Unauthorized Resource" Terraform Errors
 If you get this error on the kubernetes terraform resources, you may need to re-apply the k8s-cluster module in order to regenerate the kubeconfig: `tf apply -target=module.$ENV_do_sfo2_k8s_rriv_cluster` or `tf apply -target=module.$ENV_do_sfo2_k8s_vault_cluster`
@@ -199,7 +202,16 @@ Keycloak is used as an identity provider throughout the project. Its purpose is 
 1. Authenticate end users who wish to use the rriv monitoring software.
 2. Act as an IDP for the VPN, which gates access to certain private backend services, (such as Vault).
 
-To use keycloak, you must first log in with the admin credentials that are given in the terraform outputs. Use these to log in and create a new Client with service accounts activated. Give the client the name "terraform" and the admin realm role under "service account roles". Put the credentials in your local secrets file so that terraform can use it to create a "rriv-beta" realm. From there, you can log in and create users.
+Once you have applied the `$ENV_vault_sfo2` module, you are ready to log in to keycloak. You may need to also do a helm apply/sync again, in case the certs aren't working yet:
+`helmfile -e $ENV sync --selector name=rriv-network`
+
+1. To use keycloak, you must first log in with the `keycloak_username`/`keycloak_password` credentials that are stored in Vault in the `<$ENV>-keycloak-creds` secret. Use these to log in and manually create in the UI a new Client with service accounts activated. 
+2. You can leave "OpenID Connect" selected. 
+3. Give the client the name "terraform". 
+4. Turn on "Client Authentication" and make sure that the following are checked: "OAuth 2.0 Device Authorization Grant", "Direct access grants", and "Service accounts roles". Root URL and Home URL should be set: "https://auth.<$ENV>.rriv.org". 
+5. Put the credentials in your local secrets file so that terraform can use it to create a "rriv-beta" realm. 
+6. Under the "Service accounts roles" tab, select "Assign role" > "Filter by realm roles" > select "admin" > Save. 
+From here, once you have applied the keycloak module terraform, you can log in and create users.
 
 ## Terraform
 You must authenticate with DO and AWS before running terraform. Use `doctl` to authenticate to DO.

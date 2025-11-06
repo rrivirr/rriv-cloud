@@ -1,5 +1,8 @@
 data "digitalocean_database_ca" "ca" {
   cluster_id = digitalocean_database_cluster.rriv.id
+  depends_on = [
+    digitalocean_database_cluster.rriv
+  ]
 }
 
 resource "digitalocean_database_cluster" "rriv" {

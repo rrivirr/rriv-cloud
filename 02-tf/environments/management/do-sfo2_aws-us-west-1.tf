@@ -71,33 +71,33 @@ module "do_sfo2_headscale" {
   ]
 }
 
-# module "do_sfo2_lb_ips_staging" {
-#   source = "../../modules/do/lb-ips"
+module "do_sfo2_lb_ips_staging" {
+  source = "../../modules/do/lb-ips"
 
-#   providers = {
-#     digitalocean = digitalocean.staging-sfo2
-#   }
+  providers = {
+    digitalocean = digitalocean.staging-sfo2
+  }
 
-#   env = "staging"
-# }
+  env = "staging"
+}
 
-# module "do_sfo2_dns_staging" {
-#   source = "../../modules/do/dns"
+module "do_sfo2_dns_staging" {
+  source = "../../modules/do/dns"
 
-#   providers = {
-#     digitalocean = digitalocean.management-sfo2
-#   }
+  providers = {
+    digitalocean = digitalocean.management-sfo2
+  }
 
-#   domain = "staging.rriv.org"
-#   rriv_org_lb_ip = module.do_sfo2_lb_ips_staging.rriv_org_lb_ip
-#   chirp_lb_ip = module.do_sfo2_lb_ips_staging.chirp_lb_ip
-#   lorawan_lb_ip = module.do_sfo2_lb_ips_staging.lorawan_lb_ip
-#   vault_lb_ip = module.do_sfo2_lb_ips_staging.vault_lb_ip
+  env = "staging"
+  rriv_org_lb_ip = module.do_sfo2_lb_ips_staging.rriv_org_lb_ip
+  chirp_lb_ip = module.do_sfo2_lb_ips_staging.chirp_lb_ip
+  lorawan_lb_ip = module.do_sfo2_lb_ips_staging.lorawan_lb_ip
+  vault_lb_ip = module.do_sfo2_lb_ips_staging.vault_lb_ip
 
-#   depends_on = [
-#     module.do_sfo2_lb_ips_staging
-#   ]
-# }
+  depends_on = [
+    module.do_sfo2_lb_ips_staging
+  ]
+}
 
 # module "do_sfo2_lb_ips_prod" {
 #   source = "../../modules/do/lb-ips"

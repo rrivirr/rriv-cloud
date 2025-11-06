@@ -37,8 +37,8 @@ vault:
             node_id = "$(POD_NAME)"
           }
           service_registration "kubernetes" {}
-          api_addr = "https://vault-staging.rriv.org:8200"
-          cluster_addr = "https://vault-staging.rriv.org:8201"
+          api_addr = "https://vault.staging.rriv.org:8200"
+          cluster_addr = "https://vault.staging.rriv.org:8201"
           disable_mlock = true
           ui = true
 
@@ -47,7 +47,7 @@ vault:
       RRIV_VAULT_CACERT: /vault/userconfig/letsencrypt/ca.crt
       RRIV_VAULT_TLSCERT: /vault/userconfig/vault-tls/tls.crt
       RRIV_VAULT_TLSKEY: /vault/userconfig/vault-tls/tls.key
-      RRIV_VAULT_API_ADDR: https://vault-staging.rriv.org:8200
+      RRIV_VAULT_API_ADDR: https://vault.staging.rriv.org:8200
       # RRIV_VAULT_SKIP_VERIFY: "true"
       VAULT_ADDR: https://127.0.0.1:8200
 

@@ -2,7 +2,7 @@ keycloak:
   extraArgs:
     - start
     - "--health-enabled=true"
-    - "--hostname=auth-staging.rriv.org"
+    - "--hostname=auth.staging.rriv.org"
     - "--proxy-headers=xforwarded"
     - "--http-enabled=true"
     - "--hostname-strict=false"

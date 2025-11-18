@@ -15,6 +15,7 @@ Authors:
 `helm plugin install https://github.com/databus23/helm-diff`
 - [**doctl**](https://github.com/digitalocean/doctl) - CLI tool for DigitalOcean
 - **[Terraform](https://developer.hashicorp.com/terraform/install)** - IaC for our multi-cloud environment
+-**AWS CLI** - Not required, but helpful
 
 ## Background
 RRIV cloud is set up to use DigitalOcean (DO) for its Chirpstack servers. Its main database is a Postgres managed db, also in DO. There are two k8s clusters for each environment - one for the project, and one for the Vault secrets.

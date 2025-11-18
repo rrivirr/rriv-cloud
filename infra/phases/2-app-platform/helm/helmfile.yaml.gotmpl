@@ -1,0 +1,20 @@
+environments:
+  dev:
+    values:
+      - environments/dev.yaml
+  staging:
+    values:
+      - environments/staging.yaml
+  prod:
+    values:
+      - environments/prod.yaml
+
+// Don't combine helmfiles here - always target vault then rriv in ./helmfiles
+// helmfiles:
+//   - path: helmfiles/vault.yaml.gotmpl
+//     values:
+//       - environments/{{ .Environment.Name }}.yaml
+//   - path: helmfiles/rriv.yaml.gotmpl
+//     values:
+//       - environments/{{ .Environment.Name }}.yaml
+

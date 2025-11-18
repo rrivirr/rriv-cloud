@@ -9,10 +9,19 @@ export KUBECONFIG="$K8S_DIRECTORY/vault-dev.yaml"\
 :"$K8S_DIRECTORY/vault-prod.yaml"\
 :"$K8S_DIRECTORY/rriv-prod.yaml"
 
-# Get these from your DigitalOcean account.
-# They should match the values for access_key and secret_key in 02-tf/environments/../backend.hcl
-export SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
-export SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
+# Get these from your DigitalOcean account for each Team.
+export MGMT_DO_TOKEN="your_do_token"
+export MGMT_SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
+export MGMT_SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
+export DEV_DO_TOKEN="your_do_token"
+export DEV_SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
+export DEV_SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
+export STAGING_DO_TOKEN="your_do_token"
+export STAGING_SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
+export STAGING_SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
+export PROD_DO_TOKEN="your_do_token"
+export PROD_SPACES_ACCESS_KEY_ID="your_spaces_access_key_id"
+export PROD_SPACES_SECRET_ACCESS_KEY="your_spaces_secret_access_key"
 
 # Terraform secrets should ***NOT*** be stored in this repo!!!
 # AI agents like Copilot can read anything you open in your editor.

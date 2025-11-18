@@ -1,0 +1,3 @@
+# DO key and secret. DO Spaces requires this for its S3 backend.
+access_key = "YOUR_DO_ACCESS_KEY"
+secret_key = "YOUR_DO_SECRET_KEY"

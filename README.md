@@ -1,21 +1,35 @@
-# RRIV Cloud
+# rriv cloud
 *Kubernetes infrastructure for rriv's IoT cloud*
 
 Authors: 
 - [Kat Leipper](https://github.com/katherinel)
 
-## Prerequesites
+### What is rriv?
 
-- **Proton Pass** - for storing credentials to various accounts
-- **DigitalOcean** account access - this is where our cloud lives
-- **Tailscale VPN** access - this is the VPN that gatekeeps some of our infrastructure
+An open source platform for environmental sensor testbed implementation and management.
+
+rriv provides a cloud-based layer for inventory, configuration, and automated performance/event tracking so that teams can reliably test and iterate on new sensing hardware in real-world conditions. It reduces the friction of deploying and validating new sensing hardware by replacing ad-hoc workflows with a scalable, standardized information system.
+
+This repository acts as a monorepo for the cloud layer - everything after the raw data is captured by a LoRaWAN device and passed along to the Internet.
+
+But it doesn’t just provide software - it shows you how to structure your entire cloud setup, including organizing environments, managing your organization, and controlling contributor access, so you can follow a consistent, scalable approach instead of figuring it out piecemeal.
+
+![network-diagram](./docs/network-simple.png)
+
+*This diagram is a simplified view of what's involved in the platform from the perspective of an end user.*
+
+## Prerequisites
+
+- **Proton Pass** - (recommended) for storing credentials to various accounts
+- **DigitalOcean** - this is where our cloud lives
+- **Tailscale VPN** - this is the VPN that gatekeeps some of our infrastructure
 - **[kubectl](https://kubernetes.io/docs/reference/kubectl/introduction/)** - k8s CLI tool
 - **[Helm](https://helm.sh/)** and **[Helmfile](https://helmfile.readthedocs.io/en/latest/#installation)** - Kubernetes templating
 - **[Helm Diff Plugin](https://github.com/databus23/helm-diff)** installed:
 `helm plugin install https://github.com/databus23/helm-diff`
 - [**doctl**](https://github.com/digitalocean/doctl) - CLI tool for DigitalOcean
 - **[Terraform](https://developer.hashicorp.com/terraform/install)** - IaC for our multi-cloud environment
--**AWS CLI** - Not required, but helpful
+- **AWS CLI** - Not required, but helpful
 
 ## Background
 RRIV cloud is set up to use DigitalOcean (DO) for its Chirpstack servers. Its main database is a Postgres managed db, also in DO. There are two k8s clusters for each environment - one for the project, and one for the Vault secrets.
@@ -24,9 +38,9 @@ We use helm for configuring the k8s clusters. Additionally, the DO infrastructur
 
 AWS is used sparingly. Its main purpose is to act as the guardian of our Vault root token. For this, we have some very basic infrastructure captured in Terraform as well, stored again in DigitalOcean statefiles.
 
-This diagram attempts to show where each piece of infrastructure lives, and where various resources retrieve data/access from.
-
 ![rriv network](docs/rriv-network.png)
+
+*This diagram shows where each piece of infrastructure lives, and where various resources retrieve data/access from.*
 
 ## How this repo is organized
 

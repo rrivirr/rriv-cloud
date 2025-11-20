@@ -101,10 +101,10 @@ data:
         max_open_connections=10
         min_idle_connections=0
 
-  {{ range $path, $_ :=  .Files.Glob  "../configurations/chirpstack/region_us915*.yaml" }}
-  {{ . }}: |-    
-      {{ $.Files.Get $path }}
-  {{ end }}
+{{ range $path, $_ :=  .Files.Glob  "configuration/chirpstack/region_us915*.toml" }}
+{{ base $path | indent 2 }}: |-    
+{{ $.Files.Get $path | indent 4}}
+{{ end }}
 
   kind: ConfigMap
 metadata:

@@ -1,5 +1,13 @@
 kubeContext: {{ .Environment.Values.vaultKubeContext }}
 
+hooks:
+  - events: ["presync"]
+    showlogs: true
+    command: "bash"
+    args:
+      - "-c"
+      - "kubectl create namespace vault --dry-run=client -o yaml | kubectl apply -f -"
+
 repositories:
   - name: jetstack
     url: https://charts.jetstack.io
@@ -7,8 +15,18 @@ repositories:
     url: https://charts.external-secrets.io
   - name: hashicorp
     url: https://helm.releases.hashicorp.com
+  - name: metrics-server
+    url: https://kubernetes-sigs.github.io/metrics-server/
 
 releases:
+  - name: metrics-server
+    namespace: kube-system
+    chart: metrics-server/metrics-server
+    values:
+      - args:
+          - --kubelet-insecure-tls
+          - --kubelet-preferred-address-types=InternalIP
+
   - name: cert-manager
     namespace: cert-manager
     chart: jetstack/cert-manager

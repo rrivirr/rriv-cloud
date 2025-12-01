@@ -22,33 +22,43 @@ clusterIssuer:
     apiTokenSecretRef:
       name: prod-digitalocean-dns-api-key
       key: api-token
+      namespace: cert-manager
 
 externalSecret:
-  name: prod-digitalocean-dns-api-key
-  namespace: cert-manager
   secretStoreRef:
-    name: prod-digitalocean-secret-store
-    namespace: cert-manager
-    kind: SecretStore
+    name: cluster-secret-store
+    namespace: external-secrets
+    kind: ClusterSecretStore
     vault:
       server: https://vault.rriv.org:8200
       path: "secret"
       version: v2
-      
-  data:
-    secretKey: api-token
-    remoteRef:
-      key: secret/prod-digitalocean-dns-api-key
-      property: api-token
+  doApiKey:
+    name: prod-digitalocean-dns-api-key
+    namespace: cert-manager
+    data:
+      secretKey: api-token
+      remoteRef:
+        key: secret/prod-digitalocean-dns-api-key
+        property: api-token
+  timescaleCreds:
+    name: prod-timescale-creds
+    namespace: default
+    data:
+      secretKey: database_url
+      remoteRef:
+        key: secret/prod-timescale-creds
+        property: database_url
 
 ingress:
-  secretName: rriv-prodorg-tls
+  secretName: rriv-prod-org-tls
   hosts:
     keycloak: auth.rriv.org
     vault: vault.rriv.org
     chirpstack: chirp.rriv.org
     chirpstackConsole: console-chirp.rriv.org
     webfinger: auth.rriv.org
+    dataApi: api.rriv.org
 
 ingress-nginx:
   controller:

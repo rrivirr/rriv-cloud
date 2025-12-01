@@ -99,30 +99,30 @@ module "do_sfo2_dns_staging" {
   ]
 }
 
-# module "do_sfo2_lb_ips_prod" {
-#   source = "../../modules/do/lb-ips"
+module "do_sfo2_lb_ips_prod" {
+  source = "../../modules/do/lb-ips"
 
-#   providers = {
-#     digitalocean = digitalocean.prod-sfo2
-#   }
+  providers = {
+    digitalocean = digitalocean.prod-sfo2
+  }
 
-#   env = "prod"
-# }
+  env = "prod"
+}
 
-# module "do_sfo2_dns_prod" {
-#   source = "../../modules/do/dns"
+module "do_sfo2_dns_prod" {
+  source = "../../modules/do/dns"
 
-#   providers = {
-#     digitalocean = digitalocean.management-sfo2
-#   }
+  providers = {
+    digitalocean = digitalocean.management-sfo2
+  }
 
-#   domain = "rriv.org"
-#   rriv_org_lb_ip = module.do_sfo2_lb_ips_prod.rriv_org_lb_ip
-#   chirp_lb_ip = module.do_sfo2_lb_ips_prod.chirp_lb_ip
-#   lorawan_lb_ip = module.do_sfo2_lb_ips_prod.lorawan_lb_ip
-#   vault_lb_ip = module.do_sfo2_lb_ips_prod.vault_lb_ip
+  env = "prod"
+  rriv_org_lb_ip = module.do_sfo2_lb_ips_prod.rriv_org_lb_ip
+  chirp_lb_ip = module.do_sfo2_lb_ips_prod.chirp_lb_ip
+  lorawan_lb_ip = module.do_sfo2_lb_ips_prod.lorawan_lb_ip
+  vault_lb_ip = module.do_sfo2_lb_ips_prod.vault_lb_ip
 
-#   depends_on = [
-#     module.do_sfo2_lb_ips_prod
-#   ]
-# }
+  depends_on = [
+    module.do_sfo2_lb_ips_prod
+  ]
+}

@@ -90,6 +90,7 @@ module "dev_do_sfo2_k8s_vault_cluster" {
   service                    = "vault"
   do_region                  = local.do_region
   node_count                 = local.vault_cluster_node_count
+  node_size                  = local.vault_cluster_node_size
   vpc_id                     = module.dev_do_sfo2_vpc.vpc_id
 
   depends_on = [
@@ -109,7 +110,7 @@ module "dev_do_sfo2_k8s_rriv_cluster" {
   service      = "rriv"
   do_region    = local.do_region
   node_count   = local.rriv_cluster_node_count
-  node_size    = "s-2vcpu-4gb"
+  node_size    = local.rriv_cluster_node_size
   vpc_id       = module.dev_do_sfo2_vpc.vpc_id
   depends_on = [
     module.dev_do_sfo2_vpc,

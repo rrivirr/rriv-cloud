@@ -1,6 +1,7 @@
 # Vault Helm Chart Value Overrides
 global:
   enabled: true
+  environment: prod
   tlsDisable: false
   resources:
     requests:
@@ -10,110 +11,145 @@ global:
       memory: 256Mi
       cpu: 250m
 
-server:
-  # Use the Enterprise Image
-  image:
-    repository: "hashicorp/vault-enterprise"
-    tag: "1.16.1-ent"
+vault:
+  server:
+    # Use the Open Source Image (switch to enterprise if you have a license)
+    image:
+      repository: "hashicorp/vault"
+      tag: "1.16.1"
 
-  # These Resource Limits are in line with node requirements in the
-  # Vault Reference Architecture for a Small Cluster
-  resources:
-    requests:
-      memory: 8Gi
-      cpu: 2000m
-    limits:
-      memory: 16Gi
-      cpu: 2000m
+    # These Resource Limits are in line with node requirements in the
+    # Vault Reference Architecture for a Small Cluster
+    # Temporarily reduced for s-1vcpu-2gb nodes - increase when nodes are upgraded
+    resources:
+      requests:
+        memory: 800Mi
+        cpu: 200m
+      limits:
+        memory: 1Gi
+        cpu: 250m
 
-  # For HA configuration and because we need to manually init the vault,
-  # we need to define custom readiness/liveness Probe settings
-  readinessProbe:
+    # For HA configuration and because we need to manually init the vault,
+    # we need to define custom readiness/liveness Probe settings
+    readinessProbe:
+      enabled: true
+      path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+    livenessProbe:
+      enabled: true
+      path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+      initialDelaySeconds: 60
+
+    # extraEnvironmentVars is a list of extra environment variables to set with the stateful set. These could be
+    # used to include variables required for auto-unseal.
+    extraEnvironmentVars:
+      VAULT_SKIP_VERIFY: "true"
+      AWS_REGION: "us-west-1"
+    
+    # Extra secret environment vars for AWS KMS auto-unseal
+    extraSecretEnvironmentVars:
+      - envName: AWS_ACCESS_KEY_ID
+        secretName: vault-aws-access-key
+        secretKey: AWS_ACCESS_KEY_ID
+      - envName: AWS_SECRET_ACCESS_KEY
+        secretName: vault-aws-access-key
+        secretKey: AWS_SECRET_ACCESS_KEY
+      - envName: VAULT_AWSKMS_SEAL_KEY_ID
+        secretName: vault-aws-kms-key
+        secretKey: KMS_KEY_ID
+
+    # extraVolumes is a list of extra volumes to mount. These will be exposed
+    # to Vault in the path `/vault/userconfig/<name>/`.
+    extraVolumes:
+      - type: secret
+        name: vault-tls
+
+    # This configures the Vault Statefulset to create a PVC for audit logs.
+    # See https://www.vaultproject.io/docs/audit/index.html to know more
+    auditStorage:
+      enabled: true
+
+    standalone:
+      enabled: false
+
+    # Run Vault in "HA" mode.
+    ha:
+      enabled: true
+      replicas: 3
+      raft:
+        enabled: true
+        setNodeId: true
+
+        config: |
+          ui = true
+          cluster_name = "vault-integrated-storage"
+          
+          seal "awskms" {
+            region     = "us-west-1"
+            kms_key_id = "arn:aws:kms:us-west-1:915530654961:alias/rriv-prod-vault"
+          }
+          
+          listener "tcp" {
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            tls_cert_file = "/vault/userconfig/vault-tls/tls.crt"
+            tls_key_file = "/vault/userconfig/vault-tls/tls.key"
+            tls_disable_client_certs = true
+          }
+
+          storage "raft" {
+            path = "/vault/data"
+            node_id = "$(POD_NAME)"
+            retry_join {
+              leader_api_addr = "https://rriv-vault-0.rriv-vault-internal:8200"
+              leader_tls_servername = "vault.rriv.org"
+            }
+            retry_join {
+              leader_api_addr = "https://rriv-vault-1.rriv-vault-internal:8200"
+              leader_tls_servername = "vault.rriv.org"
+            }
+            retry_join {
+              leader_api_addr = "https://rriv-vault-2.rriv-vault-internal:8200"
+              leader_tls_servername = "vault.rriv.org"
+            }
+          }
+          service_registration "kubernetes" {}
+          api_addr = "https://$(POD_NAME).rriv-vault-internal:8200"
+          cluster_addr = "https://$(POD_NAME).rriv-vault-internal:8201"
+          disable_mlock = true 
+
+  service:
     enabled: true
-    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
-  livenessProbe:
+    # Headless service required for Raft clustering
+    headless:
+      enabled: true
+    annotations:
+      service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+      service.beta.kubernetes.io/do-loadbalancer-tls-ports: "8200"
+      service.beta.kubernetes.io/do-loadbalancer-name: "vault-prod"
+
+  # Vault UI
+  ui:
     enabled: true
-    path: "/v1/sys/health?standbyok=true"
-    initialDelaySeconds: 60
+    serviceType: "LoadBalancer"
+    serviceNodePort: null
+    externalPort: 8200
 
-  # extraEnvironmentVars is a list of extra environment variables to set with the stateful set. These could be
-  # used to include variables required for auto-unseal.
-  extraEnvironmentVars:
-    VAULT_CACERT: /vault/userconfig/tls-ca/ca.crt
+clusterIssuer:
+  server: https://acme-v02.api.letsencrypt.org/directory
+  email: prod@rriv.org
+  privateKeySecretRef:
+    name: letsencrypt-account-key
+  digitalocean:
+    apiTokenSecretRef:
+      name: prod-digitalocean-dns-api-key
+      key: api-token
+      namespace: cert-manager
 
-  # extraVolumes is a list of extra volumes to mount. These will be exposed
-  # to Vault in the path `/vault/userconfig/<name>/`.
-  extraVolumes:
-    - type: secret
-      name: tls-server
-    - type: secret
-      name: tls-ca
-
-  # This configures the Vault Statefulset to create a PVC for audit logs.
-  # See https://www.vaultproject.io/docs/audit/index.html to know more
-  auditStorage:
-    enabled: true
-
-  standalone:
-    enabled: false
-
-  # Run Vault in "HA" mode.
-  # ha:
-  #   enabled: true
-  #   replicas: 5
-  #   raft:
-  #     enabled: true
-  #     setNodeId: true
-
-  #     config: |
-  #       ui = true
-  #       cluster_name = "vault-integrated-storage"
-  #       listener "tcp" {
-  #         address = "[::]:8200"
-  #         cluster_address = "[::]:8201"
-  #         tls_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #         tls_key_file = "/vault/userconfig/tls-server/tls.key"
-  #       }
-
-  #       storage "raft" {
-  #         path = "/vault/data"
-  #         retry_join {
-  #           leader_api_addr = "https://vault-0.vault-internal:8200"
-  #           leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-  #           leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #           leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
-  #         }
-  #         retry_join {
-  #           leader_api_addr = "https://vault-1.vault-internal:8200"
-  #           leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-  #           leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #           leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
-  #         }
-  #         retry_join {
-  #           leader_api_addr = "https://vault-2.vault-internal:8200"
-  #           leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-  #           leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #           leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
-  #         }
-  #         retry_join {
-  #           leader_api_addr = "https://vault-3.vault-internal:8200"
-  #           leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-  #           leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #           leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
-  #         }
-  #         retry_join {
-  #           leader_api_addr = "https://vault-4.vault-internal:8200"
-  #           leader_ca_cert_file = "/vault/userconfig/tls-ca/ca.crt"
-  #           leader_client_cert_file = "/vault/userconfig/tls-server/tls.crt"
-  #           leader_client_key_file = "/vault/userconfig/tls-server/tls.key"
-  #         }
-  #       } 
-
-# Vault UI
-ui:
-  enabled: true
-  serviceType: "LoadBalancer"
-  serviceNodePort: null
-  externalPort: 8200
-
-externalVaultIP: "TBD"
+certificate:
+  name: vault-cert
+  secretName: vault-tls
+  dnsNames:
+    - vault.rriv.org
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

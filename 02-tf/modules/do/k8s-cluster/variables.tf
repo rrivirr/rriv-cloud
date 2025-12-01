@@ -26,8 +26,13 @@ variable "node_size" {
   default = "s-1vcpu-2gb"
 }
 
-variable "node_count" {
-  description = "Number of nodes in the Kubernetes cluster"
+variable "node_count_min" {
+  description = "Minimum number of nodes in the Kubernetes cluster"
+  type    = number
+}
+
+variable "node_count_max" {
+  description = "Maximum number of nodes in the Kubernetes cluster"
   type    = number
 }
 

@@ -9,8 +9,18 @@ repositories:
     url: https://kubernetes.github.io/ingress-nginx
   - name: hashicorp
     url: https://helm.releases.hashicorp.com
+  - name: metrics-server
+    url: https://kubernetes-sigs.github.io/metrics-server/
     
 releases:
+  - name: metrics-server
+    namespace: kube-system
+    chart: metrics-server/metrics-server
+    values:
+      - args:
+          - --kubelet-insecure-tls
+          - --kubelet-preferred-address-types=InternalIP
+
   - name: rriv-external-secrets
     namespace: external-secrets
     chart: external-secrets/external-secrets
@@ -33,7 +43,7 @@ releases:
       - name: server.enabled
         value: false
       - name: injector.externalVaultAddr
-        value: https://vault.{{ .Environment.Name }}.rriv.org:8200
+        value: {{ if eq .Environment.Name "prod" }}https://vault.rriv.org:8200{{ else }}https://vault.{{ .Environment.Name }}.rriv.org:8200{{ end }}
       - name: global.environment
         value: {{ .Environment.Name }}
 

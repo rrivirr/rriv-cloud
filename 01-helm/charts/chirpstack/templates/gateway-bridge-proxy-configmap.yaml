@@ -34,7 +34,7 @@ data:
         # gateway-us.dev.rriv.org:1702 -> us915-2
 {{- range $index, $channelPlan := .Values.channelPlans }}
         server {
-            listen {{ add 1701 $index }} udp;
+            listen {{ add 1701 $index }} udp reuseport;
             proxy_pass gateway_bridge_{{ $channelPlan | replace "-" "_" }};
             proxy_timeout 120s;
         }

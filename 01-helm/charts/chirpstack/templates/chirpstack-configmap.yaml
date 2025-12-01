@@ -12,7 +12,7 @@ data:
       # Log level.
       #
       # Options are: trace, debug, info, warn error.
-      level="trace"
+      level="debug"
 
 
     # PostgreSQL configuration.

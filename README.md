@@ -83,7 +83,13 @@ Now run: `doctl kubernetes cluster list`. You should see the rriv-dev cluster an
 You should now be able to run `kubectl get no` and see the DO droplets.
 
 ### Applying k8s changes
-Before you From the root directory: `helmfile -e dev apply`
+Changes to the k8s yaml configurations must be applied using the `helmfile` command. `helmfile` must be run from the helm directory. 
+
+Show all new changes without applying them: `helmfile -e dev diff`
+Apply all new changes from all k8s yamls: `helmfile -e dev apply`
+
+To target a specific module using release name in the helmfile gotmpl: `helmfile -e dev apply --selector name=rriv-chirpstack`
+
 
 ## Chirpstack k8s
 The k8s files were generated from [this](https://github.com/chirpstack/chirpstack-docker) chirpstack-docker project.

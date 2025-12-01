@@ -1,12 +1,3 @@
-resource "kubernetes_namespace" "vault" {
-  metadata {
-    name = "vault"
-    labels = {
-      name = "vault"
-    }
-  }
-}
-
 resource "kubernetes_secret" "vault_aws_access_key" {
   metadata {
     name      = "vault-aws-access-key"

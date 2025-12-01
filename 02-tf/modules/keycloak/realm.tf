@@ -2,7 +2,7 @@ resource "keycloak_realm" "rriv_beta" {
   realm   = "rriv-beta-${var.env}"
   enabled = true
 
-  display_name = "rriv-beta [${var.env}]"
+  display_name = var.env == "prod" ? "rriv-beta" : "rriv-beta [${var.env}]"
 
   ssl_required = "all"
   reset_password_allowed = true

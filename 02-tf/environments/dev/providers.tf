@@ -28,9 +28,13 @@ terraform {
   # terraform init -backend-config=backend.hcl
 
   backend "s3" {
-    bucket = "" 
-    key    = ""
-    region = ""
+    bucket = "rriv-cloud-dev" 
+    key    = "backend.tfstate"
+    endpoints = {
+      s3 = "https://sfo2.digitaloceanspaces.com"
+    }
+
+    region = "us-east-1"
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_requesting_account_id  = true

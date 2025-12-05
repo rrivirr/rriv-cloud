@@ -53,7 +53,7 @@ spec:
               done
               echo "Credentials file found, sourcing..."
               source /vault/secrets/credentials.txt
-              export KC_DB_URL="jdbc:postgresql://${KC_DB_URL_HOST}:${KC_DB_URL_PORT}/${KC_DB_URL_DATABASE}?sslmode=require"
+              export KC_DB_URL="jdbc:postgresql://${KC_DB_URL_HOST}:${KC_DB_URL_PORT}/${KC_DB_URL_DATABASE}?sslmode=require&currentSchema=keycloak&options=-c%20search_path=keycloak"
               export KC_DB_USERNAME="${KC_DB_USERNAME}"
               export KC_DB_PASSWORD="${KC_DB_PASSWORD}"
               rm -f /vault/secrets/credentials.txt

@@ -214,7 +214,7 @@ Once you have applied the `$ENV_vault_sfo2` module, you are ready to log in to k
 1. To use keycloak, you must first log in with the `keycloak_username`/`keycloak_password` credentials that are stored in Vault in the `<$ENV>-keycloak-creds` secret. Use these to log in and manually create in the UI a new Client with service accounts activated. 
 2. You can leave "OpenID Connect" selected. 
 3. Give the client the name "terraform". 
-4. Turn on "Client Authentication" and make sure that the following are checked: "OAuth 2.0 Device Authorization Grant", "Direct access grants", and "Service accounts roles". Root URL and Home URL should be set: "https://auth.<$ENV>.rriv.org". 
+4. Turn on "Client Authentication" and make sure that the following are checked: "OAuth 2.0 Device Authorization Grant", "Direct access grants", and "Service accounts roles". Root URL and Home URL should be set: "https://auth.<$ENV>.rriv.org" or "https://auth.rriv.org" for prod. 
 5. Put the credentials in your local secrets file so that terraform can use it to create a "rriv-beta" realm. 
 6. Under the "Service accounts roles" tab, select "Assign role" > "Filter by realm roles" > select "admin" > Save. 
 From here, once you have applied the keycloak module terraform, you can log in and create users.

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~>2.0"
+      version = "2.47.0"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -12,9 +12,13 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "" 
-    key    = ""
-    region = ""
+    bucket = "rriv-cloud-management" 
+    key    = "backend.tfstate"
+    endpoints = {
+      s3 = "https://sfo2.digitaloceanspaces.com"
+    }
+
+    region = "us-east-1"
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_requesting_account_id  = true

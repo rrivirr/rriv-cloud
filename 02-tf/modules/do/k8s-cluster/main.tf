@@ -7,7 +7,10 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
   node_pool {
     name       = "${var.service}-${var.env}-pool"
     size       = var.node_size
-    node_count = var.node_count
+    # node_count = var.node_count
+    auto_scale = true
+    min_nodes  = var.node_count_min
+    max_nodes  = var.node_count_max
     tags      = ["cluster:${var.service}"]
   }
 
@@ -24,15 +27,15 @@ resource "local_file" "cluster_kubeconfig" {
   filename = "${path.module}/kubeconfig/${var.service}-${var.env}.yaml"
 }
 
-resource "digitalocean_firewall" "allow_smtp_egress" {
-  count = var.service == "rriv" ? 1 : 0
-  name = "rriv-${var.env}-allow-smtp-egress"
+# resource "digitalocean_firewall" "allow_smtp_egress" {
+#   count = var.service == "rriv" ? 1 : 0
+#   name = "rriv-${var.env}-allow-smtp-egress"
 
-  outbound_rule {
-    protocol           = "tcp"
-    port_range         = "587"
-    destination_addresses = ["0.0.0.0/0"]
-  }
+#   outbound_rule {
+#     protocol           = "tcp"
+#     port_range         = "587"
+#     destination_addresses = ["0.0.0.0/0"]
+#   }
 
-  tags = ["cluster:rriv"]
-}
+#   tags = ["cluster:rriv"]
+# }

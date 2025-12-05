@@ -116,6 +116,8 @@ clusterIssuer:
     apiTokenSecretRef:
       name: staging-digitalocean-dns-api-key
       key: api-token
+      namespace: cert-manager
+
 certificate:
   name: vault-cert
   secretName: vault-tls

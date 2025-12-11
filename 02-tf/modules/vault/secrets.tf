@@ -21,7 +21,7 @@ resource "vault_kv_secret_v2" "keycloak_smtp_creds" {
 
 resource "vault_kv_secret_v2" "keycloak_creds" {
   mount                      = vault_mount.app_secrets.path
-  name                       = "${var.env}-keycloak-creds"
+  name                       = "${var.env}-keycloak-db-creds"
   
   data_json = jsonencode({
     keycloak_username = var.keycloak_admin_username,

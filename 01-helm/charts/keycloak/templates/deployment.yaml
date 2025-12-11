@@ -23,12 +23,12 @@ spec:
         vault.hashicorp.com/auth-path: 'auth/kubernetes-rriv'
         vault.hashicorp.com/audience: "vault"
         vault.hashicorp.com/log-level: "info"
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/{{ .Values.global.environment }}-keycloak-creds'
+        vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/keycloak-db-creds'
         vault.hashicorp.com/agent-inject-file-credentials.txt: 'credentials.txt'
         vault.hashicorp.com/agent-pre-populate-only: 'true'
         # escape vault template syntax for Helm
         vault.hashicorp.com/agent-inject-template-credentials.txt: |
-          {{`{{- with secret "secret/data/`}}{{ .Values.global.environment }}{{`-keycloak-creds" -}}`}}
+          {{`{{- with secret "secret/data/keycloak-db-creds" -}}`}}
           export KC_BOOTSTRAP_ADMIN_USERNAME="{{`{{ .Data.data.keycloak_username }}`}}"
           export KC_BOOTSTRAP_ADMIN_PASSWORD="{{`{{ .Data.data.keycloak_password }}`}}"
           export KC_DB_URL_HOST="{{`{{ .Data.data.db_host }}`}}"

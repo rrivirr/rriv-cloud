@@ -77,6 +77,6 @@ data:
     }
 
   credentials-template.tpl: |
-    {{`{{- with secret "secret/data/`}}{{ .Values.environment }}{{`-chirpstack-db-creds" -}}`}}
+    {{`{{- with secret "secret/data/chirpstack-db-creds" -}}`}}
     export POSTGRES_DIRECT_CONN_STRING={{`{{ .Data.data.pg_chirpstack_direct_connection_string }}`}}
     {{`{{- end }}`}}

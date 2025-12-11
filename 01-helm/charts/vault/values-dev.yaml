@@ -70,7 +70,7 @@ vault:
       - name: userconfig-letsencrypt
         secret:
           defaultMode: 420
-          secretName: dev-letsencrypt-ca-cert
+          secretName: letsencrypt-ca-cert
 
     volumeMounts:
       - mountPath: /vault/userconfig/vault-tls
@@ -114,7 +114,7 @@ clusterIssuer:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: dev-digitalocean-dns-api-key
+      name: digitalocean-dns-api-key
       key: api-token
       namespace: cert-manager
 certificate:

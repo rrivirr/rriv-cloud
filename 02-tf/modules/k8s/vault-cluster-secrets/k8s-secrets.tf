@@ -41,7 +41,7 @@ resource "kubernetes_secret" "vault_aws_kms_key" {
 # Used by vault to create DNS TXT records for ACME DNS-01 challenge
 resource "kubernetes_secret" "do_dns_api_token" {
   metadata {
-    name      = "${var.env}-digitalocean-dns-api-key"
+    name      = "digitalocean-dns-api-key"
     namespace = "cert-manager"
   }
   data = {
@@ -52,7 +52,7 @@ resource "kubernetes_secret" "do_dns_api_token" {
 
 resource "kubernetes_secret" "letsencrypt_ca_cert" {
   metadata {
-    name      = "${var.env}-letsencrypt-ca-cert"
+    name      = "letsencrypt-ca-cert"
     namespace = "vault"
   }
 
@@ -66,5 +66,9 @@ resource "kubernetes_secret" "letsencrypt_ca_cert" {
 resource "local_file" "letsencrypt_ca_cert" {
   content  = file("${path.module}/static/letsencrypt-ca.crt")
   filename = "${path.module}/static/letsencrypt-ca.crt"
+
+  lifecycle {
+    ignore_changes = [content]
+  }
 }
 

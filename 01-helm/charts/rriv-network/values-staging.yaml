@@ -1,5 +1,5 @@
 digitaloceanApiTokenSecret:
-  name: staging-digitalocean-dns-api-key
+  name: digitalocean-dns-api-key
   key: api-token
   namespace: cert-manager
 
@@ -20,7 +20,7 @@ clusterIssuer:
     name: letsencrypt-account-key
   digitalocean:
     apiTokenSecretRef:
-      name: staging-digitalocean-dns-api-key
+      name: digitalocean-dns-api-key
       key: api-token
 
 externalSecret:
@@ -33,20 +33,20 @@ externalSecret:
       path: "secret"
       version: v2
   doApiKey:
-    name: staging-digitalocean-dns-api-key
+    name: digitalocean-dns-api-key
     namespace: cert-manager
     data:
       secretKey: api-token
       remoteRef:
-        key: secret/staging-digitalocean-dns-api-key
+        key: secret/digitalocean-dns-api-key
         property: api-token
   timescaleCreds:
-    name: staging-timescale-creds
+    name: timescale-creds
     namespace: default
     data:
       secretKey: database_url
       remoteRef:
-        key: secret/staging-timescale-creds
+        key: secret/timescale-creds
         property: database_url
 
 ingress:

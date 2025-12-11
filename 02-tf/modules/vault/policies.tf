@@ -49,7 +49,7 @@ EOT
 resource "vault_policy" "keycloak_policy" {
   name = "keycloak"
   policy = <<EOT
-path "secret/data/${var.env}-keycloak-creds" {
+path "secret/data/${var.env}-keycloak-db-creds" {
   capabilities = ["read", "list"]
 }
 EOT

@@ -11,6 +11,8 @@ repositories:
     url: https://helm.releases.hashicorp.com
   - name: metrics-server
     url: https://kubernetes-sigs.github.io/metrics-server/
+  - name: self-hosters
+    url: https://self-hosters-by-night.github.io/helm-charts
     
 releases:
   - name: metrics-server
@@ -103,6 +105,15 @@ releases:
         value: {{ .Environment.Name }}
     values:
       - ../charts/chirpstack/values-{{ .Environment.Name }}.yaml
+
+  - name: mqtt-broker
+    namespace: default
+    chart: self-hosters/mosquitto 
+    set:
+      - name: global.environment
+        value: {{ .Environment.Name }}
+    values:
+      - ../charts/mqtt-broker/values-{{ .Environment.Name }}.yaml
 
   # - name: rriv-queue
   #   namespace: default

@@ -4,9 +4,11 @@ locals {
   vault_cluster_node_count_min = 1
   vault_cluster_node_count_max = 5
   vault_cluster_node_size = "s-1vcpu-2gb"
+  vault_cluster_auto_scale = false
   rriv_cluster_node_count_min = 1
   rriv_cluster_node_count_max = 5
   rriv_cluster_node_size = "s-2vcpu-4gb"
+  rriv_cluster_auto_scale = false
 
   vpc_octet = 10  # 10.10.0.0/16
   vault_kv_secret_tags = {

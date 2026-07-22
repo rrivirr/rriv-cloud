@@ -8,7 +8,7 @@ resource "vault_mount" "app_secrets" {
 
 resource "vault_kv_secret_v2" "keycloak_smtp_creds" {
   mount = vault_mount.app_secrets.path
-  name  = "${var.env}-keycloak-smtp-creds"
+  name  = "keycloak-smtp-creds"
   data_json = jsonencode({
     username = "change-me-based-on-keycloak-output",
     password = "change-me-based-on-keycloak-output",
@@ -21,7 +21,7 @@ resource "vault_kv_secret_v2" "keycloak_smtp_creds" {
 
 resource "vault_kv_secret_v2" "keycloak_creds" {
   mount                      = vault_mount.app_secrets.path
-  name                       = "${var.env}-keycloak-db-creds"
+  name                       = "keycloak-db-creds"
   
   data_json = jsonencode({
     keycloak_username = var.keycloak_admin_username,
@@ -44,7 +44,7 @@ resource "vault_kv_secret_v2" "keycloak_creds" {
 
 resource "vault_kv_secret_v2" "digitalocean_dns_api_key" {
   mount = vault_mount.app_secrets.path
-  name  = "${var.env}-digitalocean-dns-api-key"
+  name  = "digitalocean-dns-api-key"
 
   data_json = jsonencode({
     api-token = var.do_dns_api_key
@@ -61,7 +61,7 @@ resource "vault_kv_secret_v2" "digitalocean_dns_api_key" {
 
 resource "vault_kv_secret_v2" "chirpstack_db_creds" {
   mount                      = vault_mount.app_secrets.path
-  name                       = "${var.env}-chirpstack-db-creds"
+  name                       = "chirpstack-db-creds"
 
   data_json = jsonencode({
     pg_chirpstack_pool_connection_string = var.rriv_app_pool_connection_string,
@@ -80,7 +80,7 @@ resource "vault_kv_secret_v2" "chirpstack_db_creds" {
 
 resource "vault_kv_secret_v2" "rriv_api_creds" {
   mount = vault_mount.app_secrets.path
-  name  = "${var.env}-rriv-api-creds"
+  name  = "rriv-api-creds"
 
   data_json = jsonencode({
     database_url = var.rriv_api_database_url,
@@ -97,7 +97,7 @@ resource "vault_kv_secret_v2" "rriv_api_creds" {
 
 resource "vault_kv_secret_v2" "data_api_creds" {
   mount = vault_mount.app_secrets.path
-  name  = "${var.env}-data-api-creds"
+  name  = "data-api-creds"
 
   data_json = jsonencode({
     database_url = var.data_api_database_url,
@@ -114,7 +114,7 @@ resource "vault_kv_secret_v2" "data_api_creds" {
 
 resource "vault_kv_secret_v2" "vpn_secrets" {
   mount = vault_mount.app_secrets.path
-  name  = "${var.env}-vpn-secrets"
+  name  = "vpn-secrets"
 
   data_json = jsonencode({
     client_secret = "change-me-based-on-keycloak-output"
@@ -131,7 +131,7 @@ resource "vault_kv_secret_v2" "vpn_secrets" {
 
 # resource "vault_kv_secret_v2" "smtp_creds" {
 #   mount = vault_mount.app_secrets.path
-#   name  = "${var.env}-vpn-ip"
+#   name  = "vpn-ip"
 
 #   data_json = jsonencode({
 #     vpn_ip = var.vpn_reserved_ip

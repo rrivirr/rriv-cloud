@@ -13,7 +13,6 @@ resource "keycloak_openid_client" "rrivctl" {
     "/oidc/callback"
   ]
 
-  base_url = "https://${local.rrivctl_subdomain}.${var.domain}"
 }
 
 # # Prod-only module

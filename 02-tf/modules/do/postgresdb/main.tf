@@ -39,6 +39,18 @@ resource "digitalocean_database_db" "keycloak" {
   depends_on = [digitalocean_database_user.keycloak]
 }
 
+# openfga
+resource "digitalocean_database_user" "openfga" {
+  cluster_id = digitalocean_database_cluster.rriv.id
+  name       = "openfga"
+}
+
+resource "digitalocean_database_db" "openfga" {
+  cluster_id = digitalocean_database_cluster.rriv.id
+  name       = "openfga"
+  depends_on = [digitalocean_database_user.openfga]
+}
+
 # rriv app
 resource "digitalocean_database_user" "rriv_api" {
   cluster_id = digitalocean_database_cluster.rriv.id

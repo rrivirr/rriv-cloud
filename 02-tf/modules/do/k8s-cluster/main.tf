@@ -8,7 +8,7 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
     name       = "${var.service}-${var.env}-pool"
     size       = var.node_size
     # node_count = var.node_count
-    auto_scale = true
+    auto_scale = var.auto_scale
     min_nodes  = var.node_count_min
     max_nodes  = var.node_count_max
     tags      = ["cluster:${var.service}"]

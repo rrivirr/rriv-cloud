@@ -49,7 +49,7 @@ path "sys/mounts/*" {
 }
 
 # Kubernetes auth backend management
-path "auth/kubernetes/*" {
+path "auth/kubernetes-rriv/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
@@ -89,3 +89,5 @@ echo "$TEMP_TOKEN"
 echo ""
 echo "💡 Copy this and use it in your secrets.auto.tfvars or environment:"
 echo "  export TF_VAR_vault_token=$TEMP_TOKEN"
+
+set +e

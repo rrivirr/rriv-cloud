@@ -31,16 +31,19 @@ EOT
 resource "vault_policy" "webapp_policy" {
   name = "webapp"
   policy = <<EOT
-path "secret/data/${var.env}-chirpstack-db-creds" {
+path "secret/data/chirpstack-db-creds" {
   capabilities = ["read"]
 }
-path "secret/data/${var.env}-timescale-creds" {
+path "secret/data/timescale-creds" {
   capabilities = ["read"]
 }
-path "secret/data/${var.env}-rriv-api-creds" {
+path "secret/data/rriv-api-creds" {
   capabilities = ["read"]
 }
-path "secret/data/${var.env}-data-api-creds" {
+path "secret/data/data-api-creds" {
+  capabilities = ["read"]
+}
+path "secret/data/chirpstack-webhook-creds" {
   capabilities = ["read"]
 }
 EOT
@@ -49,7 +52,7 @@ EOT
 resource "vault_policy" "keycloak_policy" {
   name = "keycloak"
   policy = <<EOT
-path "secret/data/${var.env}-keycloak-db-creds" {
+path "secret/data/keycloak-db-creds" {
   capabilities = ["read", "list"]
 }
 EOT
@@ -58,7 +61,7 @@ EOT
 resource "vault_policy" "headscale_policy" {
   name = "headscale"
   policy = <<EOT
-path "secret/data/${var.env}-vpn-secrets" {
+path "secret/data/vpn-secrets" {
   capabilities = ["read", "list"]
 }
 EOT
@@ -77,16 +80,16 @@ resource "vault_policy" "services_external_secrets_policy" {
   name = "services-external-secrets"
   policy = <<EOT
 # Allow External Secrets Operator to read secrets from the KV store
-path "secret/data/${var.env}-timescale-creds" {
+path "secret/data/timescale-creds" {
   capabilities = ["read"]
 }
-path "secret/metadata/${var.env}-timescale-creds" {
+path "secret/metadata/timescale-creds" {
   capabilities = ["read"]
 }
-path "secret/data/${var.env}-digitalocean-dns-api-key" {
+path "secret/data/digitalocean-dns-api-key" {
   capabilities = ["read"]
 }
-path "secret/metadata/${var.env}-digitalocean-dns-api-key" {
+path "secret/metadata/digitalocean-dns-api-key" {
   capabilities = ["read"]
 }
 EOT

@@ -91,6 +91,7 @@ module "dev_do_sfo2_k8s_vault_cluster" {
   do_region                  = local.do_region
   node_count_min             = local.vault_cluster_node_count_min
   node_count_max             = local.vault_cluster_node_count_max
+  auto_scale                 = local.vault_cluster_auto_scale
   node_size                  = local.vault_cluster_node_size
   vpc_id                     = module.dev_do_sfo2_vpc.vpc_id
 
@@ -112,6 +113,7 @@ module "dev_do_sfo2_k8s_rriv_cluster" {
   do_region    = local.do_region
   node_count_min   = local.rriv_cluster_node_count_min
   node_count_max   = local.rriv_cluster_node_count_max
+  auto_scale       = local.rriv_cluster_auto_scale
   node_size    = local.rriv_cluster_node_size
   vpc_id       = module.dev_do_sfo2_vpc.vpc_id
   depends_on = [

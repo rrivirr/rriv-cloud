@@ -36,6 +36,11 @@ variable "node_count_max" {
   type    = number
 }
 
+variable "auto_scale" {
+  description = "Should the cluster auto scale"
+  type    = bool
+}
+
 variable "vpc_id" {
   description = "VPC ID for the Kubernetes cluster"
   type        = string

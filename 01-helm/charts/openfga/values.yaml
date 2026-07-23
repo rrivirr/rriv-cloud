@@ -1,4 +1,4 @@
-replicaCount: 3
+replicaCount: 2
 
 image:
   repository: openfga/openfga
@@ -33,12 +33,16 @@ annotations:
   vault.hashicorp.com/agent-inject-secret-postgresql-ca.crt: 'secret/data/openfga-db-creds'
   vault.hashicorp.com/agent-inject-template-credentials: |
     {{`{{- with secret "secret/data/`}}{{`-openfga-db-creds" -}}`}}
-    export POSTGRES_POOL_CONN_STRING={{`{{ .Data.data.pg_openfga_pool_connection_string }}`}}
+    export POSTGRES_POOL_CONN_STRING={{`{{ .Data.data.database_url }}`}}
     {{`{{- end }}`}}
   vault.hashicorp.com/agent-inject-template-postgresql-ca.crt: |
     {{`{{- with secret "secret/data/`}}{{`-openfga-db-creds" -}}`}}
-    {{`{{ .Data.data.postgresql_ca_cert }}`}}
+    {{`{{ .Data.data.database_ca_cert }}`}}
     {{`{{- end }}`}}
+  vault.hashicorp.com/agent-requests-cpu: "100m"
+  vault.hashicorp.com/agent-requests-memory: "100Mi"
+  vault.hashicorp.com/agent-limits-cpu: "100m"
+  vault.hashicorp.com/agent-limits-memory: "100Mi"
 
 podAnnotations: {}
 podExtraLabels: {}
@@ -238,9 +242,28 @@ datastore:
       passwordKey:
   applyMigrations: true
   waitForMigrations: true
-  migrationType: job
+  migrationType: job  # other option is initContainer
   migrations:
     resources: {}
+    command: ["/bin/sh", "-c"]
+    args: 
+      - |
+        timeout=20
+        elapsed=0
+        while [ ! -f /vault/secrets/credentials ]; do
+          if [ $elapsed -ge $timeout ]; then
+            echo "Timeout waiting for Vault to inject secrets"
+            exit 1
+          fi
+          echo "Waiting for Vault to inject secrets..."
+          sleep 2
+          elapsed=$((elapsed + 2))
+        done
+        echo "Vault secrets injected"
+        source /vault/secrets/credentials
+        rm -f /vault/secrets/credentials
+        echo "starting openfga migration"
+        exec /openfga migrate
     image:
       repository: groundnuty/k8s-wait-for
       pullPolicy: Always
@@ -389,6 +412,23 @@ migrate:
     helm.sh/hook: "post-install, post-upgrade, post-rollback, post-delete"
     helm.sh/hook-weight: "-5"
     helm.sh/hook-delete-policy: "before-hook-creation"
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "webapp"
+    vault.hashicorp.com/auth-path: "auth/kubernetes-rriv"
+    vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/openfga-db-creds'
+    vault.hashicorp.com/agent-inject-secret-postgresql-ca.crt: 'secret/data/openfga-db-creds'
+    vault.hashicorp.com/agent-inject-template-credentials: |
+      {{`{{- with secret "secret/data/`}}{{`-openfga-db-creds" -}}`}}
+      export OPENFGA_DATASTORE_URI={{`{{ .Data.data.database_url }}`}}
+      {{`{{- end }}`}}
+    vault.hashicorp.com/agent-inject-template-postgresql-ca.crt: |
+      {{`{{- with secret "secret/data/`}}{{`-openfga-db-creds" -}}`}}
+      {{`{{ .Data.data.database_ca_cert }}`}}
+      {{`{{- end }}`}}
+    vault.hashicorp.com/agent-requests-cpu: "100m"
+    vault.hashicorp.com/agent-requests-memory: "100Mi"
+    vault.hashicorp.com/agent-limits-cpu: "100m"
+    vault.hashicorp.com/agent-limits-memory: "100Mi"
   labels: {}
   timeout:
 

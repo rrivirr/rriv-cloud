@@ -11,9 +11,9 @@ repositories:
     url: https://helm.releases.hashicorp.com
   - name: metrics-server
     url: https://kubernetes-sigs.github.io/metrics-server/
-  - name: openfga
     url: https://openfga.github.io/helm-charts
     
+  - name: rriv-openfga
 releases:
   - name: metrics-server
     namespace: kube-system
@@ -106,9 +106,9 @@ releases:
     values:
       - ../charts/chirpstack/values-{{ .Environment.Name }}.yaml
 
-  - name: openfga
+  - name: rriv-openfga
     namespace: default
-    chart: openfga/openfga
+    chart: rriv-openfga/openfga
     values:
       - ../charts/openfga/values.yaml
 

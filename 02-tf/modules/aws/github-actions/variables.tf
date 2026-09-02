@@ -6,7 +6,15 @@ variable "env" {
 variable "github_repos" {
   type        = list(string)
   description = "List of GitHub repositories to allow access for GitHub Actions"
-  default     = ["rrivirr/rriv-cloud", "rrivirr/github-actions", "rrivirr/rriv-api", "rrivirr/data-api", "rrivirr/rriv-chirpstack-web-hook"]
+  default     = [
+		  "rrivirr/rriv-cloud", 
+		  "rrivirr/github-actions", 
+		  "rrivirr/rriv-api", 
+		  "rrivirr/data-api", 
+		  "rrivirr/rriv-chirpstack-web-hook",
+		  "rrivirr/rriv-auth-api",
+		  "rrivirr/rriv-auth-model",
+		]
 }
 
 variable "secret_github_actions_do_api_key_arn" {

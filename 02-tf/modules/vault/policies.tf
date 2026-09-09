@@ -24,6 +24,7 @@ resource "vault_policy" "users_policy" {
 path "secret/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
+path "sys/policies/acl/*" { capabilities = ["read", "list"] }
 EOT
 }
 

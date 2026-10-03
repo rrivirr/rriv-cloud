@@ -13,7 +13,8 @@ variable "github_repos" {
 		  "rrivirr@34754537/data-api@1021193897", 
 		  "rrivirr@34754537/rriv-chirpstack-web-hook",
       "rrivirr@34754537/rriv-auth-api@1301926462",
-      "rrivirr@34754537/rriv-auth-model@1301927728
+      "rrivirr@34754537/rriv-auth-model@1301927728",
+      "rrivirr@34754537/rriv-web@1396520635"
 		]
 }
 

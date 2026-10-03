@@ -24,26 +24,71 @@ resource "vault_policy" "users_policy" {
 path "secret/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
+path "sys/policies/acl/*" { capabilities = ["read", "list"] }
 EOT
 }
 
-# TODO: separate or use paths with *
-resource "vault_policy" "webapp_policy" {
-  name = "webapp"
+resource "vault_policy" "auth_model_policy" {
+    name = "auth_model"
+  policy = <<EOT
+path "secret/data/auth-api-creds" {
+  capabilities = ["create", "read", "update", "patch"]
+}
+EOT
+}
+
+resource "vault_policy" "auth_api_policy" {
+    name = "auth_api"
+  policy = <<EOT
+path "secret/data/auth-api-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "openfga_policy" {
+    name = "openfga"
+  policy = <<EOT
+path "secret/data/openfga-db-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "chirpstack_policy" {
+    name = "chirpstack"
   policy = <<EOT
 path "secret/data/chirpstack-db-creds" {
   capabilities = ["read"]
 }
+path "secret/data/chirpstack-webhook-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "timescale_policy" {
+    name = "timescale"
+  policy = <<EOT
 path "secret/data/timescale-creds" {
   capabilities = ["read"]
 }
+EOT
+}
+
+resource "vault_policy" "rriv_api_policy" {
+    name = "rriv_api"
+  policy = <<EOT
 path "secret/data/rriv-api-creds" {
   capabilities = ["read"]
 }
-path "secret/data/data-api-creds" {
-  capabilities = ["read"]
+EOT
 }
-path "secret/data/chirpstack-webhook-creds" {
+
+resource "vault_policy" "data_api_policy" {
+    name = "data_api"
+  policy = <<EOT
+path "secret/data/data-api-creds" {
   capabilities = ["read"]
 }
 EOT

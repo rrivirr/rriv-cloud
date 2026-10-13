@@ -83,13 +83,6 @@ spec:
     - host: {{ .Values.ingress.hosts.dataApi }}
       http:
         paths:
-          - path: /data(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: data-api
-                port:
-                  number: 80
           - path: /rriv(/|$)(.*)
             pathType: ImplementationSpecific
             backend:

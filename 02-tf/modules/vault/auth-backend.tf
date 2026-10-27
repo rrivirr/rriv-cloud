@@ -24,13 +24,73 @@ resource "vault_kubernetes_auth_backend_role" "terraform_rriv" {
   ]
 }
 
-resource "vault_kubernetes_auth_backend_role" "webapp" {
+resource "vault_kubernetes_auth_backend_role" "auth_model" {
   backend                          = vault_auth_backend.kubernetes_rriv.path
-  role_name                        = "webapp"
+  role_name                        = "auth-model"
   bound_service_account_names      = ["internal-app"]
   bound_service_account_namespaces = ["default"]
 
-  token_policies = [vault_policy.webapp_policy.name]
+  token_policies = [vault_policy.auth_model_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "auth_api" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "auth-api"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.auth_api_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "openfga" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "openfga"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.openfga_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "chirpstack" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "chirpstack"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.chirpstack_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "timescale" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "timescale"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.timescale_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "rriv_api" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "rriv-api"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.rriv_api_policy.name]
+  token_ttl      = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "data_api" {
+  backend                          = vault_auth_backend.kubernetes_rriv.path
+  role_name                        = "data-api"
+  bound_service_account_names      = ["internal-app"]
+  bound_service_account_namespaces = ["default"]
+
+  token_policies = [vault_policy.data_api_policy.name]
   token_ttl      = 3600
 }
 

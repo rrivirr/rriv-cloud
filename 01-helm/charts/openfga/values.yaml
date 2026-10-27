@@ -27,10 +27,10 @@ serviceAccount:
 
 annotations:
   vault.hashicorp.com/agent-inject: "true"
-  vault.hashicorp.com/role: "webapp"
+  vault.hashicorp.com/role: "openfga"
   vault.hashicorp.com/auth-path: "auth/kubernetes-rriv"
-  vault.hashicorp.com/agent-inject-secret-credentials.txt: 'secret/data/openfga-db-creds'
-  vault.hashicorp.com/agent-inject-secret-postgresql-ca.crt: 'secret/data/openfga-db-creds'
+  vault.hashicorp.com/agent-inject-secret-credentials.txt: "secret/data/openfga-db-creds"
+  vault.hashicorp.com/agent-inject-secret-postgresql-ca.crt: "secret/data/openfga-db-creds"
   vault.hashicorp.com/agent-inject-template-credentials: |
     {{`{{- with secret "secret/data/`}}{{`-openfga-db-creds" -}}`}}
     export POSTGRES_POOL_CONN_STRING={{`{{ .Data.data.pg_openfga_pool_connection_string }}`}}
@@ -48,12 +48,10 @@ extraVolumes: []
 extraVolumeMounts: []
 extraInitContainers: []
 
-podSecurityContext:
-  {}
+podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext:
-  {}
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -336,8 +334,7 @@ allowEvaluating1_0Models:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    {}
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:

@@ -122,3 +122,21 @@ variable "do_registry_auth_token" {
   type        = object({})
   default = {}
 }
+
+variable "firmware_signing" {
+  description = "Let the firmware release workflow log in with GitHub OIDC and read the signing key"
+  type        = bool
+  default     = false
+}
+
+variable "firmware_repo" {
+  description = "GitHub repository whose release workflow signs firmware"
+  type        = string
+  default     = "rrivirr@34754537/rriv-firmware@624187019"
+}
+
+variable "github_actions_vault_audience" {
+  description = "Audience the workflow requests for its GitHub OIDC token (hashicorp/vault-action jwtGithubAudience)"
+  type        = string
+  default     = "rriv-vault"
+}

@@ -196,6 +196,7 @@ module "prod_vault_sfo2" {
   do_registry_auth_token     = var.do_registry_auth_token
   data_api_database_url       = module.prod_do_sfo2_postgresdb.data_api_database_url
   rriv_api_database_url       = module.prod_do_sfo2_postgresdb.rriv_api_database_url
+  firmware_signing            = true
 
   depends_on = [
     module.prod_k8s_sfo2_rriv_cluster_secrets,

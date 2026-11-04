@@ -11,6 +11,7 @@ path "sys/mounts" { capabilities = ["read"] }
 path "sys/mounts/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/kubernetes-rriv/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/userpass/*" { capabilities = ["create", "read", "update", "delete", "list"] }
+path "auth/github-actions/*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/token/create" { capabilities = ["create", "update", "sudo"] }
 path "auth/token/lookup-self" { capabilities = ["read"] }
 path "identity/*" { capabilities = ["create", "read", "update", "delete", "list"] }

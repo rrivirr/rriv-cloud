@@ -17,7 +17,7 @@ variable "do_region" {
 variable "k8s_version" {
   description = "Kubernetes version for the cluster"
   type        = string
-  default     = "1.33.1-do.2"
+  default     = "1.34.12-do.2"
 }
 
 variable "node_size" {

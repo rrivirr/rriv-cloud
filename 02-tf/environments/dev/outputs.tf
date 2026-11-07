@@ -82,3 +82,18 @@ output "do_dns_api_token" {
 output "openfga_store_id" {
   value = module.dev_openfga.openfga_store_id
 }
+
+output "auth_api_oidc_client_secret" {
+  value = module.dev_keycloak_sfo2.auth_api_oidc_client_secret
+  sensitive   = true
+}
+
+output "rriv_api_oidc_client_secret" {
+  value = module.dev_keycloak_sfo2.rriv_api_oidc_client_secret
+  sensitive   = true
+}
+
+output "data_api_oidc_client_secret" {
+  value = module.dev_keycloak_sfo2.data_api_oidc_client_secret
+  sensitive   = true
+}

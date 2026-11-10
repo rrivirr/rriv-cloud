@@ -2,20 +2,57 @@ resource "vault_policy" "terraform_admin_policy" {
   name = "terraform-admin"
 
   policy = <<EOT
-path "sys/policies/acl/*" { capabilities = ["create", "read", "update", "delete", "list"] }
+# Allow managing policies
+path "sys/policies/acl/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 # Auth backend management
-path "sys/auth" { capabilities = ["read"] }
-path "sys/auth/*" { capabilities = ["create", "read", "update", "delete", "list", "sudo"] }
+path "sys/auth" {
+  capabilities = ["read"]
+}
+path "sys/auth/*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
 # Mount info (required for Terraform to manage auth backends)
-path "sys/mounts" { capabilities = ["read"] }
-path "sys/mounts/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/kubernetes-rriv/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/userpass/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/github-actions/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/token/create" { capabilities = ["create", "update", "sudo"] }
-path "auth/token/lookup-self" { capabilities = ["read"] }
-path "identity/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "secret/*" { capabilities = ["create", "read", "update", "delete", "list"] }
+path "sys/mounts" {
+  capabilities = ["read"]
+}
+path "sys/mounts/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Kubernetes auth backend management
+path "auth/kubernetes-rriv/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Userpass if needed
+path "auth/userpass/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Token creation
+path "auth/github-actions/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+path "auth/token/create" {
+  capabilities = ["create", "update", "sudo"]
+}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# Identity (groups, entities)
+path "identity/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Secrets
+path "secret/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
 EOT
 }
 

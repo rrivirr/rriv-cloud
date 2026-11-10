@@ -4,4 +4,5 @@ locals {
   email_from_display_name = var.env == "prod" ? "rriv" : "rriv [${var.env}]"
   rrivctl_subdomain = var.env == "prod" ? "console-chirp" : "console-chirp.${var.env}"
   rrivctl_redirect_relative_uri = "/realms/rriv-beta-dev/account"
+  app_url = var.env == "prod" ? "rriv.org" : "app.${var.env}.rriv.org"
 }

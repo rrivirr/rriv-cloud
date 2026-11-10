@@ -223,3 +223,8 @@ module "dev_keycloak_sfo2" {
 module "dev_openfga" {
   source = "../../modules/openfga"
 }
+
+module "dev_webapp" {
+  source = "../../modules/do/web-app"
+  env = local.env
+}

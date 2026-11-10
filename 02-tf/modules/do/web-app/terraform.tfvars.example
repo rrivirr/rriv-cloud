@@ -1,0 +1,21 @@
+
+THIS FILE IS NOT USED, DELETE IT
+
+# Copy to terraform.tfvars and fill in real values.
+
+region = "sfo"
+branch = "main"
+
+# Vite build-time config (baked into the public JS bundle — no secrets)
+rriv_api_base_url  = "https://api.rriv.org"
+keycloak_url       = "https://auth.rriv.org"
+# keycloak_realm     = "master"
+keycloak_client_id = "rriv-web"
+# data_api_url     = "https://data.rriv.org"
+
+# Optional custom domain
+# custom_domain      = "app.rriv.org"
+# custom_domain_zone = "rriv.org"   # only if rriv.org DNS is on DigitalOcean
+
+# Optional DigitalOcean project
+# project_id = "00000000-0000-0000-0000-000000000000"

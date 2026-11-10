@@ -48,21 +48,21 @@ resource "keycloak_openid_client" "web_client" {
   realm_id            = keycloak_realm.rriv_beta.id
   client_id           = "rriv-web"
   name                = "$${client_account}"
-  enabled             = false
+  enabled             = true
   access_type         = "PUBLIC"
   standard_flow_enabled = true
   direct_access_grants_enabled = false
 
   valid_redirect_uris = [
-    "http://localhost:5173/*",
+    "https://${local.app_url}/*",
   ]
 
    valid_post_logout_redirect_uris = [
-    "http://localhost:5173/*",
+    "https://${local.app_url}/*",
   ]
 
   web_origins = [
-    "http://localhost:5173"
+    "https://${local.app_url}"
   ]
 
   pkce_code_challenge_method = "S256"

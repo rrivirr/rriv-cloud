@@ -13,6 +13,10 @@ resource "digitalocean_database_cluster" "rriv" {
   region               = "sfo2"
   node_count           = 1
   private_network_uuid = var.vpc_id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # chirpstack

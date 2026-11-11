@@ -2,19 +2,57 @@ resource "vault_policy" "terraform_admin_policy" {
   name = "terraform-admin"
 
   policy = <<EOT
-path "sys/policies/acl/*" { capabilities = ["create", "read", "update", "delete", "list"] }
+# Allow managing policies
+path "sys/policies/acl/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 # Auth backend management
-path "sys/auth" { capabilities = ["read"] }
-path "sys/auth/*" { capabilities = ["create", "read", "update", "delete", "list", "sudo"] }
+path "sys/auth" {
+  capabilities = ["read"]
+}
+path "sys/auth/*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
 # Mount info (required for Terraform to manage auth backends)
-path "sys/mounts" { capabilities = ["read"] }
-path "sys/mounts/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/kubernetes-rriv/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/userpass/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "auth/token/create" { capabilities = ["create", "update", "sudo"] }
-path "auth/token/lookup-self" { capabilities = ["read"] }
-path "identity/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-path "secret/*" { capabilities = ["create", "read", "update", "delete", "list"] }
+path "sys/mounts" {
+  capabilities = ["read"]
+}
+path "sys/mounts/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Kubernetes auth backend management
+path "auth/kubernetes-rriv/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Userpass if needed
+path "auth/userpass/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Token creation
+path "auth/github-actions/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+path "auth/token/create" {
+  capabilities = ["create", "update", "sudo"]
+}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# Identity (groups, entities)
+path "identity/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# Secrets
+path "secret/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
 EOT
 }
 
@@ -24,26 +62,71 @@ resource "vault_policy" "users_policy" {
 path "secret/*" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
+path "sys/policies/acl/*" { capabilities = ["read", "list"] }
 EOT
 }
 
-# TODO: separate or use paths with *
-resource "vault_policy" "webapp_policy" {
-  name = "webapp"
+resource "vault_policy" "auth_model_policy" {
+    name = "auth_model"
+  policy = <<EOT
+path "secret/data/auth-api-creds" {
+  capabilities = ["create", "read", "update", "patch"]
+}
+EOT
+}
+
+resource "vault_policy" "auth_api_policy" {
+    name = "auth_api"
+  policy = <<EOT
+path "secret/data/auth-api-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "openfga_policy" {
+    name = "openfga"
+  policy = <<EOT
+path "secret/data/openfga-db-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "chirpstack_policy" {
+    name = "chirpstack"
   policy = <<EOT
 path "secret/data/chirpstack-db-creds" {
   capabilities = ["read"]
 }
+path "secret/data/chirpstack-webhook-creds" {
+  capabilities = ["read"]
+}
+EOT
+}
+
+resource "vault_policy" "timescale_policy" {
+    name = "timescale"
+  policy = <<EOT
 path "secret/data/timescale-creds" {
   capabilities = ["read"]
 }
+EOT
+}
+
+resource "vault_policy" "rriv_api_policy" {
+    name = "rriv_api"
+  policy = <<EOT
 path "secret/data/rriv-api-creds" {
   capabilities = ["read"]
 }
-path "secret/data/data-api-creds" {
-  capabilities = ["read"]
+EOT
 }
-path "secret/data/chirpstack-webhook-creds" {
+
+resource "vault_policy" "data_api_policy" {
+    name = "data_api"
+  policy = <<EOT
+path "secret/data/data-api-creds" {
   capabilities = ["read"]
 }
 EOT

@@ -61,7 +61,7 @@ data:
       method "kubernetes" {
         mount_path = "auth/kubernetes-rriv"
         config = {
-          role = "webapp"
+          role = "chirpstack"
         }
       }
       sink "file" {

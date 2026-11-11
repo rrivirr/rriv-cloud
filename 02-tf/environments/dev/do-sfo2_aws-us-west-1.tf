@@ -218,3 +218,8 @@ module "dev_keycloak_sfo2" {
     module.dev_k8s_sfo2_vault_cluster_secrets,
   ]
 }
+
+
+module "dev_openfga" {
+  source = "../../modules/openfga"
+}

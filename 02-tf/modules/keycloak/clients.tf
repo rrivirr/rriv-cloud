@@ -15,6 +15,59 @@ resource "keycloak_openid_client" "rrivctl" {
 
 }
 
+resource "keycloak_openid_client" "auth_api" {
+  realm_id            = keycloak_realm.rriv_beta.id
+  client_id           = "auth-api"
+  name                = "$${client_account}"
+  enabled             = true
+  access_type         = "CONFIDENTIAL"
+  service_accounts_enabled = true
+  direct_access_grants_enabled = true
+}
+
+resource "keycloak_openid_client" "rriv_api" {
+  realm_id            = keycloak_realm.rriv_beta.id
+  client_id           = "rriv-api"
+  name                = "$${client_account}"
+  enabled             = true
+  access_type         = "CONFIDENTIAL"
+  service_accounts_enabled = true
+  direct_access_grants_enabled = true
+}
+
+resource "keycloak_openid_client" "data_api" {
+  realm_id            = keycloak_realm.rriv_beta.id
+  client_id           = "data-api"
+  name                = "$${client_account}"
+  enabled             = true
+  access_type         = "CONFIDENTIAL"
+  direct_access_grants_enabled = true
+}
+
+resource "keycloak_openid_client" "web_client" {
+  realm_id            = keycloak_realm.rriv_beta.id
+  client_id           = "rriv-web"
+  name                = "$${client_account}"
+  enabled             = true
+  access_type         = "PUBLIC"
+  standard_flow_enabled = true
+  direct_access_grants_enabled = false
+
+  valid_redirect_uris = [
+    "https://${local.app_url}/*",
+  ]
+
+   valid_post_logout_redirect_uris = [
+    "https://${local.app_url}/*",
+  ]
+
+  web_origins = [
+    "https://${local.app_url}"
+  ]
+
+  pkce_code_challenge_method = "S256"
+}
+
 # # Prod-only module
 module "headscale_openid_client" {
   count = var.env == "dev" ? 1 : 0

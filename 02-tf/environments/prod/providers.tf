@@ -21,6 +21,10 @@ terraform {
       source  = "mrparkers/keycloak"
       version = ">= 4.0.0"
     }
+    openfga = {
+      source  = "openfga/openfga"
+      version = ">=0.4.0"
+    }
   }
 
   # See backend.hcl.example
@@ -86,4 +90,10 @@ provider "keycloak" {
   client_id     = "terraform"
   client_secret = var.keycloak_client_secret
   url           = local.env == "prod" ? "https://auth.rriv.org" : "https://auth.${local.env}.rriv.org"
+}
+
+# kubectl -n openfga port-forward svc/openfga 8080:8080 &
+provider "openfga" {
+  api_url   = "http://localhost:8080" # or use FGA_API_URL
+  # api_token = var.api_token         # or use FGA_API_TOKEN
 }

@@ -47,6 +47,8 @@ resource "digitalocean_database_db" "keycloak" {
 resource "digitalocean_database_user" "openfga" {
   cluster_id = digitalocean_database_cluster.rriv.id
   name       = "openfga"
+  settings {}
+
 }
 
 resource "digitalocean_database_db" "openfga" {

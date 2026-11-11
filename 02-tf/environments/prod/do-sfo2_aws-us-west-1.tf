@@ -92,6 +92,7 @@ module "prod_do_sfo2_k8s_vault_cluster" {
   node_count_min             = local.vault_cluster_node_count_min
   node_count_max             = local.vault_cluster_node_count_max
   node_size                  = local.vault_cluster_node_size
+  auto_scale                 = local.vault_cluster_auto_scale
   vpc_id                     = module.prod_do_sfo2_vpc.vpc_id
   k8s_version                = "1.34.1-do.0"
 
@@ -114,6 +115,7 @@ module "prod_do_sfo2_k8s_rriv_cluster" {
   node_count_min   = local.rriv_cluster_node_count_min
   node_count_max   = local.rriv_cluster_node_count_max
   node_size    = local.rriv_cluster_node_size
+  auto_scale                 = local.rriv_cluster_auto_scale
   vpc_id       = module.prod_do_sfo2_vpc.vpc_id
   k8s_version                = "1.34.1-do.0"
 

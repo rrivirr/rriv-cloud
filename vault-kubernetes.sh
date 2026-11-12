@@ -25,57 +25,57 @@ echo ""
 # Authenticate with Vault using root token
 VAULT_TOKEN=$VAULT_ROOT_TOKEN vault login "$VAULT_ROOT_TOKEN" > /dev/null
 
-# Ensure the terraform-admin policy exists
-vault policy write terraform-admin - <<EOF
-# Allow managing policies
-path "sys/policies/acl/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# # Ensure the terraform-admin policy exists
+# vault policy write terraform-admin - <<EOF
+# # Allow managing policies
+# path "sys/policies/acl/*" {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
-# Auth backend management
-path "sys/auth" {
-  capabilities = ["read"]
-}
-path "sys/auth/*" {
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
+# # Auth backend management
+# path "sys/auth" {
+#   capabilities = ["read"]
+# }
+# path "sys/auth/*" {
+#   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+# }
 
-# Mount info
-path "sys/mounts" {
-  capabilities = ["read"]
-}
-path "sys/mounts/*" {
-  capabilities = ["read"]
-}
+# # Mount info
+# path "sys/mounts" {
+#   capabilities = ["read"]
+# }
+# path "sys/mounts/*" {
+#   capabilities = ["read"]
+# }
 
-# Kubernetes auth backend management
-path "auth/kubernetes-rriv/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# # Kubernetes auth backend management
+# path "auth/kubernetes-rriv/*" {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
-# Userpass if needed
-path "auth/userpass/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# # Userpass if needed
+# path "auth/userpass/*" {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
-# Token creation
-path "auth/token/create" {
-  capabilities = ["create", "update", "sudo"]
-}
-path "auth/token/lookup-self" {
-  capabilities = ["read"]
-}
+# # Token creation
+# path "auth/token/create" {
+#   capabilities = ["create", "update", "sudo"]
+# }
+# path "auth/token/lookup-self" {
+#   capabilities = ["read"]
+# }
 
-# Identity (groups, entities)
-path "identity/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# # Identity (groups, entities)
+# path "identity/*" {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
-# Secrets
-path "secret/*" {
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-EOF
+# # Secrets
+# path "secret/*" {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
+# EOF
 
 # Create temporary token
 TEMP_TOKEN=$(vault token create \

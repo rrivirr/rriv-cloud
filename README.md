@@ -226,3 +226,9 @@ For AWS, you need an SSO user. After logging in, you will have the option to ret
 
 ### A note about the kubernets cluster resource node_size variable
 To update the node_size variable in the k8s-cluster module, you must NOT allow the cluster to be destroyed. This is a shortcoming of the current setup. Upgrade each node one at a time to the new size, and change the node_size value to reflect the changes when you are done. Vault data is persisted in k8s persistent volumes, but currently, they will be destroyed if the entire cluster is destroyed. Having the nodes come back up one at a time ensures that there is always a leader node that can pass the data along.
+
+
+# Debugging Notes
+
+If the S3 key has changed, it needs to be updated in the local terraform state file
+
